@@ -1,47 +1,38 @@
 # JJIce
 
-macOS 状态栏图标管理工具 — 隐藏/展示状态栏图标, 缓解图标过多导致的拥挤.
+JJIce keeps a crowded macOS menu bar manageable. Place items to hide on the left side of the divider, then click the arrow to collapse or restore them.
 
-仅支持最新 macOS, 不上架 App Store, 不做签名. 极简单一职责.
+Requires the latest macOS. JJIce is unsigned and distributed outside the App Store.
 
-## 功能
-
-- 菜单栏放「分界竖线 + 箭头」两个图标
-- 点箭头折叠 → 竖线左侧图标收起到屏外, 右侧常驻; 再点展开复原
-- 折叠状态自动记忆; 默认开机自启 (可在箭头右键菜单关闭)
-
-## 用法
-
-1. 首次: 按住 ⌘ 在菜单栏拖图标, 要隐藏的拖到**竖线左侧**, 常驻的放右侧
-2. 点箭头 (`‹` / `›`) 一键收起 / 展开
-3. 右键箭头: 开机启动 / 关于 / 帮助 / 退出
-
-## 安装
-
-构建未签名, 脚本会自动去除 quarantine 隔离属性后装入 `/Applications`:
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yigegongjiang/JJIce/main/install.sh | bash
 ```
 
-可用 `VERSION` / `INSTALL_DIR` / `REPO` 覆写.
+The installer downloads the latest Release, installs `JJIce.app` into `/Applications`, and removes the quarantine attribute for the unsigned app.
 
-手动安装: 从 [Releases](https://github.com/yigegongjiang/JJIce/releases) 下载 `JJIce-macos.zip`, 解压拖入 `/Applications`, 首次打开前执行:
+Manual install:
 
-```bash
-xattr -dr com.apple.quarantine /Applications/JJIce.app   # 未签名, 绕过 Gatekeeper
-```
-
-## 开发
+1. Download `JJIce-macos.zip` from [Releases](https://github.com/yigegongjiang/JJIce/releases)
+2. Unzip it and move `JJIce.app` to `/Applications`
+3. Run before first launch:
 
 ```bash
-open JJIce.xcodeproj                                      # Xcode 打开
-xcodebuild -scheme JJIce -configuration Release \
-  CODE_SIGNING_ALLOWED=NO clean build                     # 命令行编译 (无签名)
+xattr -dr com.apple.quarantine /Applications/JJIce.app
 ```
 
-发版前本地 MUST 编译通过 (上述 `xcodebuild`) — 唯一发版门禁; 无自动化测试, 不运行 app, 功能由人类发版后手测.
+## Use
 
-## 发布
+1. Launch JJIce; the menu bar shows a divider and an arrow
+2. Hold `Command` and drag items to hide to the left side of the divider
+3. Click the arrow to collapse or expand
+4. Right-click the arrow for Launch at Login / Help / About / Quit
 
-推 `v*` tag 触发 `.github/workflows/release.yml`: 编译 → 打包 `JJIce-macos.zip` → 发 GitHub Release. 步骤 → [deploy.md](./deploy.md).
+JJIce remembers the collapsed state. Launch at Login is enabled by default and can be disabled from the menu.
+
+## Behavior
+
+- Left of divider: hidden when collapsed
+- Right of divider: always visible
+- Unsigned app: macOS may block first launch; the install script handles this automatically

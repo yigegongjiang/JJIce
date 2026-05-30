@@ -4,67 +4,75 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-05-31
+
+### Changed
+
+- Updated user-facing copy. App behavior is unchanged.
+
 ## [0.4.1] - 2026-05-31
 
 ### Fixed
 
-- 右键箭头弹出的菜单偶发进入「滚动模式」(顶部冒 `^` 滚动箭头、首项「开机时启动」被裁、滚轮一滚菜单错位重绘): 原先 `NSMenu.popUp` 手动定位, 锚点越过菜单栏顶边触发系统滚动兜底。改用官方写法 (临时挂 `statusItem.menu` + `performClick`, 弹完清空), 定位交系统, 菜单始终贴箭头下方完整展开
+- Fixed the arrow context menu opening in a clipped scroll mode.
 
 ## [0.4.0] - 2026-05-31
 
 ### Changed
 
-- 恢复分界竖线: 菜单栏重新显示「竖线 + 箭头」。竖线既是隐藏边界的可见参照, 也是折叠时撑开顶图标的执行项; 箭头独立常驻负责切换。0.2.0~0.3.1 的隐藏竖线 / 单箭头方案不再保留
+- Restored the divider + arrow layout.
 
 ## [0.3.1] - 2026-05-31
 
 ### Fixed
 
-- 折叠后箭头消失、完全无法操作: v0.2.0 起让箭头自身撑宽顶出图标, 致箭头连同图标被挤出可见区。改为「隐形分隔项负责撑开 + 箭头独立常驻」, 箭头永远可见可点
+- Kept the arrow visible after collapsing menu bar items.
 
 ## [0.3.0] - 2026-05-31
 
 ### Added
 
-- 右键菜单新增「帮助」: 一键打开 GitHub 仓库页
+- Added a Help menu item.
 
 ### Changed
 
-- 开机自启改为首次启动默认开启 (可在右键菜单关闭), 无需手动开启
-- 右键菜单移除「折叠 / 展开」项: 该操作是左键点箭头的能力, 不在右键重复
+- Enabled Launch at Login by default on first launch.
+- Removed the duplicate collapse action from the context menu.
 
 ## [0.2.0] - 2026-05-31
 
 ### Changed
 
-- 移除分界竖线, 改为单箭头: 箭头本身即分界 — 左侧图标折叠隐藏 / 右侧常驻。折叠时箭头原地不动, 消除原先「竖线与箭头之间」的歧义缝隙
+- Simplified the menu bar control to a single arrow.
 
 ## [0.1.1] - 2026-05-31
 
 ### Fixed
 
-- 安装后启动毫无反应、状态栏不出现图标: 纯代码 app 缺少 `main.swift` 入口, `@main` 未把 `AppDelegate` 挂到 `NSApp.delegate`, 致 `applicationDidFinishLaunching` 从不触发 (进程存活却零表现). 新增 `main.swift` 显式挂载 delegate 后修复
+- Fixed launch showing no menu bar items.
 
 ## [0.1.0] - 2026-05-31
 
 ### Added
 
-- 菜单栏折叠: 点开关把分界线左侧图标一键收起 / 展开
-- 折叠状态记忆; 可选开机自启
+- Added menu bar item collapse and restore.
+- Added collapsed state persistence and optional Launch at Login.
 
 ## [0.0.2] - 2026-05-31
 
 ### Added
 
-- 应用图标: 冰蓝菜单栏主题 (白色胶囊 + 图标圆点 + 收纳 chevron), 呼应状态栏图标管理
+- Added the app icon.
 
 ## [0.0.1] - 2026-05-31
 
 ### Added
 
-- 一键安装: `install.sh` 下载未签名 macOS 构建并装入 `/Applications`
+- Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/yigegongjiang/JJIce/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/yigegongjiang/JJIce/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/yigegongjiang/JJIce/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...v0.3.0
