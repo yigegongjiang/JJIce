@@ -124,10 +124,17 @@ final class StatusBarController {
         }
     }
 
+    /// 弹出右键菜单。
+    ///
+    /// 不用 `NSMenu.popUp(positioning:at:in:)` 手动定位: 状态项在屏幕顶端, 手动锚点一旦越过菜单栏顶边,
+    /// 系统为保证菜单可见会强制进入「滚动模式」——顶部冒出 `^` 滚动箭头、首项被裁、滚轮一滚还重绘错位。
+    /// 改用官方写法: 临时把菜单挂到状态项再 `performClick`, 定位全交系统 (永远贴图标下方展开、绝不裁切);
+    /// 弹完立即清空 `menu` 以恢复「左键点击 = 折叠/展开」(设了 `menu` 会顶替左键 action)。
     private func presentMenu() {
         guard let button = toggleItem.button else { return }
-        let origin = NSPoint(x: 0, y: button.bounds.height + 4)
-        makeMenu().popUp(positioning: nil, at: origin, in: button)
+        toggleItem.menu = makeMenu()
+        button.performClick(nil)
+        toggleItem.menu = nil
     }
 
     private func makeMenu() -> NSMenu {
