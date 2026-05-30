@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-31
+
+### Changed
+
+- 恢复分界竖线: 菜单栏重新显示「竖线 + 箭头」。竖线既是隐藏边界的可见参照, 也是折叠时撑开顶图标的执行项; 箭头独立常驻负责切换。0.2.0~0.3.1 的隐藏竖线 / 单箭头方案不再保留
+
 ## [0.3.1] - 2026-05-31
 
 ### Fixed
@@ -52,7 +58,8 @@
 
 - 一键安装: `install.sh` 下载未签名 macOS 构建并装入 `/Applications`
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/yigegongjiang/JJIce/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...v0.2.0

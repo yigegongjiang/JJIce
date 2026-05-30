@@ -7,20 +7,19 @@ import AppKit
 import OSLog
 import ServiceManagement
 
-/// 极简折叠式菜单栏图标管理（隐形分隔 + 可见箭头, 无私有 API）。
+/// 经典折叠式菜单栏图标管理（竖线 + 箭头, 无私有 API）。
 ///
-/// 放两个状态项, 但用户只看到箭头:
-/// - `toggleItem`（箭头）: **永远窄、始终可见可点**。左键切换折叠/展开, 右键（或 Ctrl+左键）弹菜单;
+/// 菜单栏放两个状态项:
+/// - `separatorItem`（分界竖线）: 既是隐藏边界的可见参照, 也是折叠的执行项。折叠时把 `length` 撑到比屏幕
+///   还宽, 凭借菜单栏「从右向左排列、空间不足则左侧溢出屏外」的规则把**它左侧**的图标顶出可视区即完成隐藏,
+///   同时把竖线自身 alpha 置 0（此时它已宽达整条栏）; 展开时恢复窄宽与显示。
+/// - `toggleItem`（箭头）: 始终可见。左键切换折叠/展开, 右键（或 Ctrl+左键）弹菜单;
 ///   展开态显示 `chevron.left`, 折叠态 `chevron.right`。
-/// - `separatorItem`（隐形分隔）: 紧贴箭头左侧, 平时 `length = 0` 不可见。折叠时把 `length` 撑到比屏幕
-///   还宽, 凭借菜单栏「从右向左排列、空间不足则左侧溢出屏外」的规则, 把**它左侧**(即箭头左侧)的图标
-///   顶出可视区即完成隐藏。
 ///
-/// 为何必须两个项: **被撑大的项自己也会被挤出可见区**。若让箭头自身撑大, 箭头会连同图标一起消失、
-/// 无从点击展开（v0.2.0~v0.3.0 的致命缺陷）。故撑大职责交给独立的隐形分隔项, 箭头只当常驻按钮。
+/// 撑大的项自身会被挤出可见区, 故折叠职责由竖线承担、箭头只当常驻按钮——二者分离, 箭头才不会随之消失。
 ///
-/// 布局（左→右）: `[可隐藏图标] [separator 隐形] [toggle 箭头] [常驻图标] [系统图标]`。
-/// 箭头左侧图标会被折叠, 右侧常驻。按住 ⌘ 在菜单栏把图标拖到箭头左/右侧即设定其归属。
+/// 布局（左→右）: `[可隐藏图标] [separator 竖线] [toggle 箭头] [常驻图标] [系统图标]`。
+/// 用户按住 ⌘ 在菜单栏把图标拖到竖线左侧, 即把其纳入折叠范围。
 @MainActor
 final class StatusBarController {
     private let separatorItem: NSStatusItem
@@ -33,7 +32,7 @@ final class StatusBarController {
     private static let didApplyDefaultLaunchAtLoginKey = "JJIce.didApplyDefaultLaunchAtLogin"
     private static let repositoryURL = URL(string: "https://github.com/yigegongjiang/JJIce")!
 
-    /// 是否折叠（左侧图标已收起）。写入即持久化并刷新状态项。
+    /// 是否折叠（左侧图标已收起）。写入即持久化并刷新两个状态项。
     private var isCollapsed: Bool {
         didSet {
             guard isCollapsed != oldValue else { return }
@@ -62,8 +61,9 @@ final class StatusBarController {
 
     private func configureSeparatorItem() {
         separatorItem.autosaveName = "JJIce.Separator"
-        separatorItem.button?.image = nil   // 隐形: 不画图标, 仅在折叠时撑开顶出左侧图标
-        separatorItem.length = 0
+        guard let button = separatorItem.button else { return }
+        button.image = makeSeparatorImage()
+        button.toolTip = "JJIce 分界线 · 左侧图标会被折叠隐藏"
     }
 
     private func configureToggleItem() {
@@ -72,6 +72,19 @@ final class StatusBarController {
         button.target = self
         button.action = #selector(handleToggleClick)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+    }
+
+    /// 绘制一条居中细竖线作为分界标识; template 图以自动适配深/浅色菜单栏。
+    private func makeSeparatorImage() -> NSImage {
+        let size = NSSize(width: 7, height: 16)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.black.setFill()
+        let lineWidth: CGFloat = 1
+        NSRect(x: (size.width - lineWidth) / 2, y: 3, width: lineWidth, height: size.height - 6).fill()
+        image.unlockFocus()
+        image.isTemplate = true
+        return image
     }
 
     // MARK: - 折叠状态
@@ -83,8 +96,14 @@ final class StatusBarController {
     }
 
     private func applyCollapsedState() {
-        // 撑大隐形分隔项把其左侧图标顶出; 箭头(toggle)在分隔项右侧, 永远窄, 原地可见可点。
-        separatorItem.length = isCollapsed ? expandedLength : 0
+        if isCollapsed {
+            // 撑大分界项顶出其左侧图标, 并隐藏竖线本身（此时它已宽达整条菜单栏）。
+            separatorItem.length = expandedLength
+            separatorItem.button?.alphaValue = 0
+        } else {
+            separatorItem.length = NSStatusItem.variableLength
+            separatorItem.button?.alphaValue = 1
+        }
 
         // 箭头方向 = 下一步动作: 展开态指左（可折叠）, 折叠态指右（可展开）。
         let symbolName = isCollapsed ? "chevron.right" : "chevron.left"
@@ -148,7 +167,7 @@ final class StatusBarController {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         let alert = NSAlert()
         alert.messageText = "JJIce \(version)"
-        alert.informativeText = "菜单栏图标管理工具。\n点箭头折叠/展开; 按住 ⌘ 把图标拖到箭头左侧即纳入隐藏, 拖到右侧则常驻。"
+        alert.informativeText = "菜单栏图标管理工具。\n点箭头折叠/展开; 按住 ⌘ 把图标拖到分界竖线左侧即纳入隐藏。"
         alert.addButton(withTitle: "好")
         NSApp.activate()
         alert.runModal()
