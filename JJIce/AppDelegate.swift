@@ -2,29 +2,18 @@
 //  AppDelegate.swift
 //  JJIce
 //
-//  Created by YouHan on 2026/05/31.
-//
 
-import Cocoa
+import AppKit
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var statusBarController: StatusBarController?
 
-  
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        statusBarController = StatusBarController()
+    }
 
-
-  func applicationDidFinishLaunching(_ aNotification: Notification) {
-    // Insert code here to initialize your application
-  }
-
-  func applicationWillTerminate(_ aNotification: Notification) {
-    // Insert code here to tear down your application
-  }
-
-  func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
-    return true
-  }
-
-
+    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+        true
+    }
 }
-

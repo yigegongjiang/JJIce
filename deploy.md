@@ -1,6 +1,6 @@
 # 部署流程
 
-AI 改完代码主动执行. 不签名; **本地编译通过**是发版前置门禁 (不运行 app), 通过后推 `v*` tag, Actions 编译 + 打包 + 发布.
+AI 改完代码主动执行, 全程无需人类介入. 不签名; **本地编译通过 = 唯一发版门禁** (不运行 app, MUST NOT 等人类验收/手测), 通过后即推 `v*` tag, Actions 编译 + 打包 + 发布. 功能由人类发版后自行手测, 不阻塞.
 
 ## TL;DR
 
@@ -15,7 +15,7 @@ AI 改完代码主动执行. 不签名; **本地编译通过**是发版前置门
 xcodebuild -scheme JJIce -configuration Release CODE_SIGNING_ALLOWED=NO clean build
 ```
 
-MUST 编译通过才进入后续步骤 — 把错误挡在本地, MUST NOT 等 Actions 才暴露. 不运行 app, 功能由人类手测 `.app`.
+MUST 编译通过才进入后续步骤 — 把错误挡在本地, MUST NOT 等 Actions 才暴露. 不运行 app; build 通过即继续 deploy, 功能由人类发版后手测 `.app`, 不阻塞发版.
 
 ## 2. 写版本
 
