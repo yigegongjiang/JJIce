@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-31
+
+### Fixed
+
+- 折叠后箭头消失、完全无法操作: v0.2.0 起让箭头自身撑宽顶出图标, 致箭头连同图标被挤出可见区。改为「隐形分隔项负责撑开 + 箭头独立常驻」, 箭头永远可见可点
+
 ## [0.3.0] - 2026-05-31
 
 ### Added
@@ -46,7 +52,8 @@
 
 - 一键安装: `install.sh` 下载未签名 macOS 构建并装入 `/Applications`
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yigegongjiang/JJIce/compare/v0.1.0...v0.1.1

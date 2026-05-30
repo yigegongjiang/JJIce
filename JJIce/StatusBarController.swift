@@ -7,19 +7,23 @@ import AppKit
 import OSLog
 import ServiceManagement
 
-/// 极简折叠式菜单栏图标管理（单状态项, 无私有 API）。
+/// 极简折叠式菜单栏图标管理（隐形分隔 + 可见箭头, 无私有 API）。
 ///
-/// 只放一个状态项 `toggleItem`（箭头）, 它**既是分界、又是开关**:
-/// - 展开态: 窄项, 显示 `chevron.left`; 左键点击即折叠, 右键（或 Ctrl+左键）弹菜单。
-/// - 折叠态: 把自身 `length` 撑到比屏幕还宽, 凭借菜单栏「从右向左排列、空间不足则左侧溢出屏外」
-///   的规则把**它左侧**的所有图标顶出可视区即完成隐藏。因状态项右边界固定、length 只向左生长,
-///   箭头原地不动; 再把 `chevron.right` 画在与撑开宽度等宽的透明模板图**最右端**, 箭头便钉在
-///   可见区右端始终可点, 点击即展开。
+/// 放两个状态项, 但用户只看到箭头:
+/// - `toggleItem`（箭头）: **永远窄、始终可见可点**。左键切换折叠/展开, 右键（或 Ctrl+左键）弹菜单;
+///   展开态显示 `chevron.left`, 折叠态 `chevron.right`。
+/// - `separatorItem`（隐形分隔）: 紧贴箭头左侧, 平时 `length = 0` 不可见。折叠时把 `length` 撑到比屏幕
+///   还宽, 凭借菜单栏「从右向左排列、空间不足则左侧溢出屏外」的规则, 把**它左侧**(即箭头左侧)的图标
+///   顶出可视区即完成隐藏。
 ///
-/// 布局（左→右）: `[可隐藏图标] [toggle 箭头] [常驻图标] [系统图标]`。
-/// 箭头本身即分界: 左侧图标会被折叠, 右侧常驻。按住 ⌘ 在菜单栏把图标拖到箭头左/右侧即设定其归属。
+/// 为何必须两个项: **被撑大的项自己也会被挤出可见区**。若让箭头自身撑大, 箭头会连同图标一起消失、
+/// 无从点击展开（v0.2.0~v0.3.0 的致命缺陷）。故撑大职责交给独立的隐形分隔项, 箭头只当常驻按钮。
+///
+/// 布局（左→右）: `[可隐藏图标] [separator 隐形] [toggle 箭头] [常驻图标] [系统图标]`。
+/// 箭头左侧图标会被折叠, 右侧常驻。按住 ⌘ 在菜单栏把图标拖到箭头左/右侧即设定其归属。
 @MainActor
 final class StatusBarController {
+    private let separatorItem: NSStatusItem
     private let toggleItem: NSStatusItem
 
     private let defaults: UserDefaults
@@ -42,9 +46,13 @@ final class StatusBarController {
         self.defaults = defaults
         self.isCollapsed = defaults.bool(forKey: Self.collapsedDefaultsKey)
 
+        // 先建 toggle、后建 separator: 无位置记忆时新项落在已有项左侧,
+        // 从而保证 separator 位于 toggle 左边, 契合 [图标][separator][toggle] 布局。
         let statusBar = NSStatusBar.system
         self.toggleItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
+        self.separatorItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
+        configureSeparatorItem()
         configureToggleItem()
         applyCollapsedState()
         enableLaunchAtLoginByDefaultIfNeeded()
@@ -52,13 +60,18 @@ final class StatusBarController {
 
     // MARK: - 配置
 
+    private func configureSeparatorItem() {
+        separatorItem.autosaveName = "JJIce.Separator"
+        separatorItem.button?.image = nil   // 隐形: 不画图标, 仅在折叠时撑开顶出左侧图标
+        separatorItem.length = 0
+    }
+
     private func configureToggleItem() {
         toggleItem.autosaveName = "JJIce.Toggle"
         guard let button = toggleItem.button else { return }
         button.target = self
         button.action = #selector(handleToggleClick)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        button.imageScaling = .scaleNone   // 折叠态用超宽图把箭头钉到最右端, 禁止缩放
     }
 
     // MARK: - 折叠状态
@@ -70,38 +83,14 @@ final class StatusBarController {
     }
 
     private func applyCollapsedState() {
-        guard let button = toggleItem.button else { return }
-        if isCollapsed {
-            // 撑大本项顶出其左侧图标; 箭头画在超宽透明图最右端, 留在可见区可点。
-            let width = expandedLength
-            toggleItem.length = width
-            button.image = makeCollapsedArrowImage(width: width)
-            button.toolTip = "展开被隐藏的菜单栏图标"
-        } else {
-            toggleItem.length = NSStatusItem.variableLength
-            button.image = NSImage(systemSymbolName: "chevron.left",
-                                   accessibilityDescription: "折叠并隐藏左侧菜单栏图标")
-            button.toolTip = "折叠并隐藏左侧菜单栏图标"
-        }
-    }
+        // 撑大隐形分隔项把其左侧图标顶出; 箭头(toggle)在分隔项右侧, 永远窄, 原地可见可点。
+        separatorItem.length = isCollapsed ? expandedLength : 0
 
-    /// 折叠态箭头: 一张与撑开宽度等宽的透明模板图, `chevron.right` 贴最右端绘制。
-    /// 因 `imageScaling = .scaleNone` 且图宽 = 按钮宽, 图右端即按钮右端 = 菜单栏可见区, 箭头始终可点。
-    private func makeCollapsedArrowImage(width: CGFloat) -> NSImage {
-        let height: CGFloat = 18
-        let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
-        let chevron = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "展开被隐藏的菜单栏图标")?
-            .withSymbolConfiguration(config)
-        let canvas = NSImage(size: NSSize(width: width, height: height))
-        canvas.lockFocus()
-        if let chevron {
-            let cs = chevron.size
-            chevron.draw(in: NSRect(x: width - cs.width - 8, y: (height - cs.height) / 2,
-                                    width: cs.width, height: cs.height))
-        }
-        canvas.unlockFocus()
-        canvas.isTemplate = true
-        return canvas
+        // 箭头方向 = 下一步动作: 展开态指左（可折叠）, 折叠态指右（可展开）。
+        let symbolName = isCollapsed ? "chevron.right" : "chevron.left"
+        let description = isCollapsed ? "展开被隐藏的菜单栏图标" : "折叠并隐藏左侧菜单栏图标"
+        toggleItem.button?.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: description)
+        toggleItem.button?.toolTip = description
     }
 
     // MARK: - 交互
@@ -118,9 +107,7 @@ final class StatusBarController {
 
     private func presentMenu() {
         guard let button = toggleItem.button else { return }
-        // 折叠态 button 超宽且左端在屏外, 菜单锚到右端可见的箭头处; 展开态锚左端。
-        let x = isCollapsed ? max(0, button.bounds.width - 22) : 0
-        let origin = NSPoint(x: x, y: button.bounds.height + 4)
+        let origin = NSPoint(x: 0, y: button.bounds.height + 4)
         makeMenu().popUp(positioning: nil, at: origin, in: button)
     }
 
