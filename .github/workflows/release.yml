@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches MARKETING_VERSION
+        run: |
+          marketing_version="$(
+            xcodebuild -showBuildSettings -project JJIce.xcodeproj -scheme JJIce -configuration Release 2>/dev/null \
+              | awk -F' = ' '/ MARKETING_VERSION =/ { gsub(/ /, "", $2); print $2; exit }'
+          )"
+          tag="${{ github.ref_name }}"
+          if [ -z "$marketing_version" ]; then
+            echo "error: failed to read MARKETING_VERSION" >&2
+            exit 1
+          fi
+          if [ "v${marketing_version}" != "${tag}" ]; then
+            echo "error: tag ${tag} does not match MARKETING_VERSION v${marketing_version}" >&2
+            exit 1
+          fi
+          echo "version ok: ${tag}"
+
+      - name: Show toolchain
+        run: xcodebuild -version
+
+      # No tests / no app run by design; the build also passes locally before tagging — this re-checks it.
+      - name: Build (unsigned)
+        run: |
+          xcodebuild \
+            -project JJIce.xcodeproj \
+            -scheme JJIce \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            clean build
+
+      - name: Package .app into zip
+        id: package
+        run: |
+          app="build/Build/Products/Release/JJIce.app"
+          [ -d "$app" ] || { echo "error: $app not found" >&2; exit 1; }
+          zip="JJIce-macos.zip"
+          # ditto (not zip) preserves bundle structure, symlinks and resource forks.
+          ditto -c -k --keepParent "$app" "$zip"
+          shasum -a 256 "$zip" > checksums.txt
+          cat checksums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            JJIce-macos.zip
+            checksums.txt

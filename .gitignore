@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Xcode build output
+build/
+DerivedData/
+*.xcuserstate
+
+# Xcode user-specific data (schemes are shared via xcshareddata/)
+xcuserdata/
+
+# Release artifacts (produced by CI)
+*.zip
+checksums.txt
+
+.claude/**/*.local*
