@@ -26,6 +26,8 @@ final class StatusBarController {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "JJIce", category: "StatusBar")
 
     private static let collapsedDefaultsKey = "JJIce.isCollapsed"
+    private static let didApplyDefaultLaunchAtLoginKey = "JJIce.didApplyDefaultLaunchAtLogin"
+    private static let repositoryURL = URL(string: "https://github.com/yigegongjiang/JJIce")!
 
     /// 是否折叠（左侧图标已收起）。写入即持久化并刷新状态项。
     private var isCollapsed: Bool {
@@ -45,6 +47,7 @@ final class StatusBarController {
 
         configureToggleItem()
         applyCollapsedState()
+        enableLaunchAtLoginByDefaultIfNeeded()
     }
 
     // MARK: - 配置
@@ -124,16 +127,6 @@ final class StatusBarController {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
 
-        let collapseMenuItem = NSMenuItem(
-            title: isCollapsed ? "展开图标" : "折叠图标",
-            action: #selector(menuToggleCollapsed),
-            keyEquivalent: ""
-        )
-        collapseMenuItem.target = self
-        menu.addItem(collapseMenuItem)
-
-        menu.addItem(.separator())
-
         let launchItem = NSMenuItem(
             title: "开机时启动",
             action: #selector(menuToggleLaunchAtLogin),
@@ -149,6 +142,10 @@ final class StatusBarController {
         aboutItem.target = self
         menu.addItem(aboutItem)
 
+        let helpItem = NSMenuItem(title: "帮助", action: #selector(menuOpenHelp), keyEquivalent: "")
+        helpItem.target = self
+        menu.addItem(helpItem)
+
         let quitItem = NSMenuItem(title: "退出 JJIce", action: #selector(menuQuit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
@@ -156,8 +153,8 @@ final class StatusBarController {
         return menu
     }
 
-    @objc private func menuToggleCollapsed() {
-        isCollapsed.toggle()
+    @objc private func menuOpenHelp() {
+        NSWorkspace.shared.open(Self.repositoryURL)
     }
 
     @objc private func menuShowAbout() {
@@ -178,6 +175,19 @@ final class StatusBarController {
 
     private var isLaunchAtLoginEnabled: Bool {
         SMAppService.mainApp.status == .enabled
+    }
+
+    /// 首次启动默认开启开机自启（仅一次, 记标志位）。此后用户在菜单里的开/关被尊重, 不再覆盖。
+    private func enableLaunchAtLoginByDefaultIfNeeded() {
+        guard !defaults.bool(forKey: Self.didApplyDefaultLaunchAtLoginKey) else { return }
+        defaults.set(true, forKey: Self.didApplyDefaultLaunchAtLoginKey)
+
+        guard SMAppService.mainApp.status != .enabled else { return }
+        do {
+            try SMAppService.mainApp.register()
+        } catch {
+            logger.error("默认开机自启注册失败: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     @objc private func menuToggleLaunchAtLogin() {

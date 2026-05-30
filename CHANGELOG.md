@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-31
+
+### Added
+
+- 右键菜单新增「帮助」: 一键打开 GitHub 仓库页
+
+### Changed
+
+- 开机自启改为首次启动默认开启 (可在右键菜单关闭), 无需手动开启
+- 右键菜单移除「折叠 / 展开」项: 该操作是左键点箭头的能力, 不在右键重复
+
 ## [0.2.0] - 2026-05-31
 
 ### Changed
@@ -35,7 +46,8 @@
 
 - 一键安装: `install.sh` 下载未签名 macOS 构建并装入 `/Applications`
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yigegongjiang/JJIce/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yigegongjiang/JJIce/compare/v0.0.2...v0.1.0
