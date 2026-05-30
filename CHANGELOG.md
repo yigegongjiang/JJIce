@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-31
+
+### Changed
+
+- 移除分界竖线, 改为单箭头: 箭头本身即分界 — 左侧图标折叠隐藏 / 右侧常驻。折叠时箭头原地不动, 消除原先「竖线与箭头之间」的歧义缝隙
+
 ## [0.1.1] - 2026-05-31
 
 ### Fixed
@@ -29,7 +35,8 @@
 
 - 一键安装: `install.sh` 下载未签名 macOS 构建并装入 `/Applications`
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yigegongjiang/JJIce/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yigegongjiang/JJIce/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/yigegongjiang/JJIce/compare/v0.0.1...v0.0.2
