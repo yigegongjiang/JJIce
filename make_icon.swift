@@ -1,6 +1,6 @@
-// JJIce app 图标生成器 (CoreGraphics, 无外部依赖)。
+// jj-ice app 图标生成器 (CoreGraphics, 无外部依赖)。
 // 设计: 冰蓝渐变圆角方块 + 白色"菜单栏"胶囊; 胶囊内左侧 3 个圆点(展示中的图标) + 右侧 chevron(收纳/展开隐藏图标)。
-// 用法: swift make_icon.swift [输出目录]   缺省输出到 JJIce/Assets.xcassets/AppIcon.appiconset
+// 用法: swift make_icon.swift [输出目录]   缺省输出到 jj-ice/Assets.xcassets/AppIcon.appiconset
 
 import Cocoa
 import ImageIO
@@ -71,7 +71,7 @@ func render(_ size: Int, to path: String) {
 
 let outDir = CommandLine.arguments.count > 1
   ? CommandLine.arguments[1]
-  : "JJIce/Assets.xcassets/AppIcon.appiconset"
+  : "jj-ice/Assets.xcassets/AppIcon.appiconset"
 try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
 
 let files: [(Int, String)] = [

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F30C6BD22FCB4EA40025BCD1"
-               BuildableName = "JJIce.app"
-               BlueprintName = "JJIce"
-               ReferencedContainer = "container:JJIce.xcodeproj">
+               BuildableName = "jj-ice.app"
+               BlueprintName = "jj-ice"
+               ReferencedContainer = "container:jj-ice.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F30C6BD22FCB4EA40025BCD1"
-            BuildableName = "JJIce.app"
-            BlueprintName = "JJIce"
-            ReferencedContainer = "container:JJIce.xcodeproj">
+            BuildableName = "jj-ice.app"
+            BlueprintName = "jj-ice"
+            ReferencedContainer = "container:jj-ice.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -60,9 +60,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F30C6BD22FCB4EA40025BCD1"
-            BuildableName = "JJIce.app"
-            BlueprintName = "JJIce"
-            ReferencedContainer = "container:JJIce.xcodeproj">
+            BuildableName = "jj-ice.app"
+            BlueprintName = "jj-ice"
+            ReferencedContainer = "container:jj-ice.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

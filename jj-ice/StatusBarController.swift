@@ -1,6 +1,6 @@
 //
 //  StatusBarController.swift
-//  JJIce
+//  jj-ice
 //
 
 import AppKit
@@ -15,11 +15,11 @@ final class StatusBarController {
     private let toggleItem: NSStatusItem
 
     private let defaults: UserDefaults
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "JJIce", category: "StatusBar")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "jj-ice", category: "StatusBar")
 
-    private static let collapsedDefaultsKey = "JJIce.isCollapsed"
-    private static let didApplyDefaultLaunchAtLoginKey = "JJIce.didApplyDefaultLaunchAtLogin"
-    private static let repositoryURL = URL(string: "https://github.com/yigegongjiang/JJIce")!
+    private static let collapsedDefaultsKey = "jj-ice.isCollapsed"
+    private static let didApplyDefaultLaunchAtLoginKey = "jj-ice.didApplyDefaultLaunchAtLogin"
+    private static let repositoryURL = URL(string: "https://github.com/yigegongjiang/jj-ice")!
 
     private var isCollapsed: Bool {
         didSet {
@@ -47,14 +47,14 @@ final class StatusBarController {
     // MARK: - Setup
 
     private func configureSeparatorItem() {
-        separatorItem.autosaveName = "JJIce.Separator"
+        separatorItem.autosaveName = "jj-ice.Separator"
         guard let button = separatorItem.button else { return }
         button.image = makeSeparatorImage()
-        button.toolTip = "JJIce divider - items on the left are hidden when collapsed"
+        button.toolTip = "jj-ice divider - items on the left are hidden when collapsed"
     }
 
     private func configureToggleItem() {
-        toggleItem.autosaveName = "JJIce.Toggle"
+        toggleItem.autosaveName = "jj-ice.Toggle"
         guard let button = toggleItem.button else { return }
         button.target = self
         button.action = #selector(handleToggleClick)
@@ -129,7 +129,7 @@ final class StatusBarController {
 
         menu.addItem(makeMenuItem(title: "Help", action: #selector(menuOpenHelp)))
         menu.addItem(makeMenuItem(title: "About", action: #selector(menuShowAbout)))
-        menu.addItem(makeMenuItem(title: "Quit JJIce", action: #selector(menuQuit), keyEquivalent: "q"))
+        menu.addItem(makeMenuItem(title: "Quit jj-ice", action: #selector(menuQuit), keyEquivalent: "q"))
 
         return menu
     }
@@ -147,7 +147,7 @@ final class StatusBarController {
     @objc private func menuShowAbout() {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         let alert = NSAlert()
-        alert.messageText = "JJIce \(version)"
+        alert.messageText = "jj-ice \(version)"
         alert.informativeText = "Menu bar item organizer.\nClick the arrow to collapse or expand; hold Command and drag items to the left side of the divider to hide them."
         alert.addButton(withTitle: "OK")
         NSApp.activate()

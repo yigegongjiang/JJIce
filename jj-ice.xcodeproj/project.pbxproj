@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		F30C6BD32FCB4EA40025BCD1 /* JJIce.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJIce.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F30C6BD32FCB4EA40025BCD1 /* jj-ice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jj-ice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F30C6BD52FCB4EA40025BCD1 /* JJIce */ = {
+		F30C6BD52FCB4EA40025BCD1 /* jj-ice */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = JJIce;
+			path = jj-ice;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		F30C6BCA2FCB4EA40025BCD1 = {
 			isa = PBXGroup;
 			children = (
-				F30C6BD52FCB4EA40025BCD1 /* JJIce */,
+				F30C6BD52FCB4EA40025BCD1 /* jj-ice */,
 				F30C6BD42FCB4EA40025BCD1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		F30C6BD42FCB4EA40025BCD1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F30C6BD32FCB4EA40025BCD1 /* JJIce.app */,
+				F30C6BD32FCB4EA40025BCD1 /* jj-ice.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F30C6BD22FCB4EA40025BCD1 /* JJIce */ = {
+		F30C6BD22FCB4EA40025BCD1 /* jj-ice */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F30C6BE12FCB4EA40025BCD1 /* Build configuration list for PBXNativeTarget "JJIce" */;
+			buildConfigurationList = F30C6BE12FCB4EA40025BCD1 /* Build configuration list for PBXNativeTarget "jj-ice" */;
 			buildPhases = (
 				F30C6BCF2FCB4EA40025BCD1 /* Sources */,
 				F30C6BD02FCB4EA40025BCD1 /* Frameworks */,
@@ -61,13 +61,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F30C6BD52FCB4EA40025BCD1 /* JJIce */,
+				F30C6BD52FCB4EA40025BCD1 /* jj-ice */,
 			);
-			name = JJIce;
+			name = jj-ice;
 			packageProductDependencies = (
 			);
-			productName = JJIce;
-			productReference = F30C6BD32FCB4EA40025BCD1 /* JJIce.app */;
+			productName = jj-ice;
+			productReference = F30C6BD32FCB4EA40025BCD1 /* jj-ice.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F30C6BCE2FCB4EA40025BCD1 /* Build configuration list for PBXProject "JJIce" */;
+			buildConfigurationList = F30C6BCE2FCB4EA40025BCD1 /* Build configuration list for PBXProject "jj-ice" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F30C6BD22FCB4EA40025BCD1 /* JJIce */,
+				F30C6BD22FCB4EA40025BCD1 /* jj-ice */,
 			);
 		};
 /* End PBXProject section */
@@ -266,8 +266,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 0.4.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yigegongjiang.jjice.JJIce;
+				MARKETING_VERSION = 0.4.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yigegongjiang.jj-ice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -300,8 +300,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 0.4.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yigegongjiang.jjice.JJIce;
+				MARKETING_VERSION = 0.4.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yigegongjiang.jj-ice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -316,7 +316,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F30C6BCE2FCB4EA40025BCD1 /* Build configuration list for PBXProject "JJIce" */ = {
+		F30C6BCE2FCB4EA40025BCD1 /* Build configuration list for PBXProject "jj-ice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F30C6BDF2FCB4EA40025BCD1 /* Debug */,
@@ -325,7 +325,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F30C6BE12FCB4EA40025BCD1 /* Build configuration list for PBXNativeTarget "JJIce" */ = {
+		F30C6BE12FCB4EA40025BCD1 /* Build configuration list for PBXNativeTarget "jj-ice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F30C6BE22FCB4EA40025BCD1 /* Debug */,

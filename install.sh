@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# install.sh — download JJIce.app from GitHub Releases and install into /Applications.
+# install.sh — download jj-ice.app from GitHub Releases and install into /Applications.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/JJIce/main/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/JJIce/main/install.sh | VERSION=v0.0.1 bash
+#   curl -fsSL https://raw.githubusercontent.com/<owner>/jj-ice/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/<owner>/jj-ice/main/install.sh | VERSION=v0.0.1 bash
 #   INSTALL_DIR="$HOME/Applications" ./install.sh
 #
 # The build is unsigned: this script strips the quarantine attribute so Gatekeeper
@@ -11,11 +11,11 @@
 
 set -euo pipefail
 
-REPO="${REPO:-yigegongjiang/JJIce}"
+REPO="${REPO:-yigegongjiang/jj-ice}"
 VERSION="${VERSION:-latest}"
 INSTALL_DIR="${INSTALL_DIR:-/Applications}"
-ASSET="JJIce-macos.zip"
-APP_NAME="JJIce.app"
+ASSET="jj-ice-macos.zip"
+APP_NAME="jj-ice.app"
 
 err()  { printf 'error: %s\n' "$*" >&2; exit 1; }
 info() { printf '%s\n' "$*"; }

@@ -7,12 +7,12 @@ AI 改完代码主动执行, 全程无需人类介入. 不签名; **本地编译
 1. 本地 `xcodebuild ... clean build` MUST 通过 (不运行 app)
 2. 改 `MARKETING_VERSION` + `CHANGELOG.md` 新版段, 版本一致
 3. commit + annotated tag (`-a -m`) + push branch + tag
-4. 等 Actions → Release 出现 `JJIce-macos.zip` + `checksums.txt`
+4. 等 Actions → Release 出现 `jj-ice-macos.zip` + `checksums.txt`
 
 ## 1. 本地编译 (前置门禁)
 
 ```bash
-xcodebuild -scheme JJIce -configuration Release CODE_SIGNING_ALLOWED=NO clean build
+xcodebuild -scheme jj-ice -configuration Release CODE_SIGNING_ALLOWED=NO clean build
 ```
 
 MUST 编译通过才进入后续步骤 — 把错误挡在本地, MUST NOT 等 Actions 才暴露. 不运行 app; build 通过即继续 deploy, 功能由人类发版后手测 `.app`, 不阻塞发版.

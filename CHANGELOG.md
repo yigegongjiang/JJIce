@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-07-23
+
+### Changed
+
+- Renamed the project to `jj-ice` (repository, app bundle, bundle identifier, release asset). Existing settings and Launch at Login reset on first launch of this version.
+
 ## [0.4.2] - 2026-05-31
 
 ### Changed
@@ -70,14 +76,15 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/JJIce/compare/v0.4.2...HEAD
-[0.4.2]: https://github.com/yigegongjiang/JJIce/compare/v0.4.1...v0.4.2
-[0.4.1]: https://github.com/yigegongjiang/JJIce/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/yigegongjiang/JJIce/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/yigegongjiang/JJIce/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/yigegongjiang/JJIce/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/yigegongjiang/JJIce/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/yigegongjiang/JJIce/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/yigegongjiang/JJIce/compare/v0.0.2...v0.1.0
-[0.0.2]: https://github.com/yigegongjiang/JJIce/compare/v0.0.1...v0.0.2
-[0.0.1]: https://github.com/yigegongjiang/JJIce/releases/tag/v0.0.1
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.0.2...v0.1.0
+[0.0.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/yigegongjiang/jj-ice/releases/tag/v0.0.1

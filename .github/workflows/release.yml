@@ -22,7 +22,7 @@ jobs:
       - name: Verify tag matches MARKETING_VERSION
         run: |
           marketing_version="$(
-            xcodebuild -showBuildSettings -project JJIce.xcodeproj -scheme JJIce -configuration Release 2>/dev/null \
+            xcodebuild -showBuildSettings -project jj-ice.xcodeproj -scheme jj-ice -configuration Release 2>/dev/null \
               | awk -F' = ' '/ MARKETING_VERSION =/ { gsub(/ /, "", $2); print $2; exit }'
           )"
           tag="${{ github.ref_name }}"
@@ -43,8 +43,8 @@ jobs:
       - name: Build (unsigned)
         run: |
           xcodebuild \
-            -project JJIce.xcodeproj \
-            -scheme JJIce \
+            -project jj-ice.xcodeproj \
+            -scheme jj-ice \
             -configuration Release \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
@@ -55,9 +55,9 @@ jobs:
       - name: Package .app into zip
         id: package
         run: |
-          app="build/Build/Products/Release/JJIce.app"
+          app="build/Build/Products/Release/jj-ice.app"
           [ -d "$app" ] || { echo "error: $app not found" >&2; exit 1; }
-          zip="JJIce-macos.zip"
+          zip="jj-ice-macos.zip"
           # ditto (not zip) preserves bundle structure, symlinks and resource forks.
           ditto -c -k --keepParent "$app" "$zip"
           shasum -a 256 "$zip" > checksums.txt
@@ -71,5 +71,5 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: |
-            JJIce-macos.zip
+            jj-ice-macos.zip
             checksums.txt

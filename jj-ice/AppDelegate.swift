@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  JJIce
+//  jj-ice
 //
 
 import AppKit
