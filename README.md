@@ -31,7 +31,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 
 - `jj-ice/` — 源码: `main.swift` (入口) / `AppDelegate.swift` / `StatusBarController.swift` (全部逻辑) / `Assets.xcassets`
 - `jj-ice.xcodeproj/` — Xcode 工程; `MARKETING_VERSION` = 版本单一信源
-- `scripts/install.sh` — 一键安装脚本, 从 Releases 下载 (`REPO` / `INSTALL_DIR` / `VERSION` 可覆盖)
+- `scripts/install.sh` — 一键安装脚本: 从 latest Release 下载 + 装入 `/Applications`; 无可配置项
 - `scripts/install-local.sh` — 本机预部署: Release 打包 + 装入 `/Applications`
 - `make_icon.swift` — CoreGraphics 生成 AppIcon 全尺寸切图
 - `.github/workflows/release.yml` — `v*` tag 触发: 校验版本 → 无签名编译 → 打 zip + checksums → 建 Release

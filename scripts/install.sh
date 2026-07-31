@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
-# install.sh — download jj-ice.app from GitHub Releases and install into /Applications.
+# install.sh — download the latest jj-ice.app from GitHub Releases into /Applications.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/jj-ice/main/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/jj-ice/main/install.sh | VERSION=v0.0.1 bash
-#   INSTALL_DIR="$HOME/Applications" ./install.sh
+#   curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/install.sh | bash
 #
 # The build is unsigned: this script strips the quarantine attribute so Gatekeeper
 # allows the first launch without a right-click "Open" dance.
 
 set -euo pipefail
 
-REPO="${REPO:-yigegongjiang/jj-ice}"
-VERSION="${VERSION:-latest}"
-INSTALL_DIR="${INSTALL_DIR:-/Applications}"
+REPO="yigegongjiang/jj-ice"
+INSTALL_DIR="/Applications"
 ASSET="jj-ice-macos.zip"
 APP_NAME="jj-ice.app"
 
@@ -28,15 +25,11 @@ case "$(uname -s)" in
   *) err "unsupported OS: $(uname -s) (only macOS is supported)" ;;
 esac
 
-if [ "$VERSION" = "latest" ]; then
-  base="https://github.com/${REPO}/releases/latest/download"
-else
-  base="https://github.com/${REPO}/releases/download/${VERSION}"
-fi
+base="https://github.com/${REPO}/releases/latest/download"
 asset_url="${base}/${ASSET}"
 checksums_url="${base}/checksums.txt"
 
-info "==> Installing ${APP_NAME} ${VERSION}"
+info "==> Installing ${APP_NAME} (latest)"
 info "    repo:   ${REPO}"
 info "    target: ${INSTALL_DIR}/${APP_NAME}"
 
@@ -67,7 +60,6 @@ xattr -dr com.apple.quarantine "$src_app" 2>/dev/null || true
 
 dest="${INSTALL_DIR}/${APP_NAME}"
 info "==> Installing to ${dest}"
-mkdir -p "$INSTALL_DIR"
 rm -rf "$dest"
 mv "$src_app" "$dest"
 

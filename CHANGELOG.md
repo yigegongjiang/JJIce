@@ -14,6 +14,12 @@
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-07-31
+
+### Removed
+
+- 安装脚本不再支持自定义安装目录与版本, 固定安装 latest 版本到 `/Applications`。
+
 ## [0.4.5] - 2026-07-31
 
 跟随版本同步发布
@@ -97,6 +103,7 @@
 - Added the install script.
 
 [Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...HEAD
+[0.4.6]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.2...v0.4.3

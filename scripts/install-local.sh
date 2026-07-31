@@ -6,7 +6,6 @@
 #
 # Usage:
 #   bash scripts/install-local.sh
-#   INSTALL_DIR="$HOME/Applications" bash scripts/install-local.sh
 
 set -euo pipefail
 
@@ -14,7 +13,7 @@ PROJECT="jj-ice.xcodeproj"
 SCHEME="jj-ice"
 APP_NAME="jj-ice.app"
 DERIVED="build"
-INSTALL_DIR="${INSTALL_DIR:-/Applications}"
+INSTALL_DIR="/Applications"
 
 err()  { printf 'error: %s\n' "$*" >&2; exit 1; }
 info() { printf '%s\n' "$*"; }
@@ -47,7 +46,6 @@ app="${DERIVED}/Build/Products/Release/${APP_NAME}"
 
 dest="${INSTALL_DIR}/${APP_NAME}"
 info "==> Installing to ${dest}"
-mkdir -p "$INSTALL_DIR"
 
 # Quit a running instance so the replaced bundle is not half-live.
 pkill -x "${APP_NAME%.app}" 2>/dev/null || true
