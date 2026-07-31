@@ -53,12 +53,16 @@ mkdir -p "$INSTALL_DIR"
 pkill -x "${APP_NAME%.app}" 2>/dev/null || true
 
 # Stage then swap: a failed copy must not leave the machine without the app.
+# No quarantine stripping here (unlike install.sh): the attribute is set by
+# downloaders, never by a local xcodebuild product.
 staged="${dest}.new"
 rm -rf "$staged"
 ditto "$app" "$staged"
-xattr -dr com.apple.quarantine "$staged" 2>/dev/null || true
 rm -rf "$dest"
 mv "$staged" "$dest"
 
+# Menu bar agent: the pkill above took it out of the menu bar, so put it back.
+# Leaving the machine without the tool that was just installed is not "delivered".
+open "$dest"
+
 info "==> Installed: ${dest} (v${version})"
-info "    launch: open \"${dest}\""

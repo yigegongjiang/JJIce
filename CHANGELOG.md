@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-07-31
+
+跟随版本同步发布
+
 ## [0.4.4] - 2026-07-31
 
 ### Changed
@@ -92,7 +96,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.1...v0.4.2
