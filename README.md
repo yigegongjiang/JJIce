@@ -19,7 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/i
 - 手动装: 下载 [Releases](https://github.com/yigegongjiang/jj-ice/releases) 的 `jj-ice-macos.zip` → 拖 `/Applications` → `xattr -dr com.apple.quarantine /Applications/jj-ice.app`
 - 按住 `Command` 拖动图标到分隔符左侧 = 归入可隐藏区; 右侧常驻
 - 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 网速开关 (默认开) / 登录启动 (默认开) / Help / About / Quit
-- 网速两行 `↑ 上行` / `↓ 下行`, 1s 刷新; 只统计物理网卡 → VPN 开关不改变读数; 点网速 = 同一菜单
+- 网速两行 (上 = 上行 / 下 = 下行), 1s 刷新, 占宽 ~22pt; 只统计物理网卡 → VPN 开关不改变读数; 点网速 = 同一菜单
 - ad-hoc 签名, 未公证, App Store 外分发; 需 macOS 26+
 
 ## 架构
@@ -34,7 +34,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 - NEVER 用 `getifaddrs`: 只暴露 32 位 `if_data`, 每 4 GiB 回绕
 - 只累加 `en<数字>` + `IFT_ETHER` 接口: 隧道流量必经物理口, 再加 utun / ipsec 会双计并在 VPN 开关时跳变; bridge / vmenet / awdl / llw / ap / anpi / lo 同时被排除
 - 计数器倒退 = 接口重建 → 只重设基线; 间隔 ≤ 0 或 > 5s (睡眠 / 定时器合并) → 只重设基线不出数; 接口消失即从基线剔除 (无增长)
-- 渲染成 template `NSImage` 双行 + 等宽字体定宽 8 字符 → 自动跟随明暗菜单栏, 读数变化不抖宽度
+- 渲染成 template `NSImage` 双行 → 自动跟随明暗菜单栏; 等宽字体 + 定宽 4 字符 (`999K` / `1.5M` / `1.4G`, 无箭头无 `/s`, kern -0.2) → 恒定 22pt, 读数变化不抖宽度; 行高取字体行高与 (菜单栏高 - 2) / 2 的较小值, 再压会裁字形
 
 构建形态: SwiftPM executable, 无 xcodeproj / Storyboard / asset catalog; `.app` 由 `scripts/build-app.sh` 组装 (Info.plist + icns + ad-hoc 签名). universal (arm64 + x86_64) — macOS 26 仍覆盖部分 Intel 机型.
 

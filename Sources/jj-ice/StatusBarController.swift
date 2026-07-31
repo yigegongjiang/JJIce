@@ -90,7 +90,7 @@ final class StatusBarController {
         button.action = #selector(handleNetSpeedClick)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.image = makeSpeedImage(for: nil)
-        button.toolTip = "Upload / download rate of the physical network links"
+        button.toolTip = "Physical network links - top line: upload, bottom line: download"
     }
 
     /// AppKit keeps each item's slot in `NSStatusItem Preferred Position <autosaveName>`, a
@@ -185,14 +185,16 @@ final class StatusBarController {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .paragraphStyle: paragraph,
+            .kern: -0.2,  // menu bar space is scarce: tighten the tracking as far as stays legible
             .foregroundColor: NSColor.black,  // template image: only coverage matters, not the color
         ]
         let lines = [
-            NSAttributedString(string: "↑ " + Self.format(speed?.uploadBytesPerSecond), attributes: attributes),
-            NSAttributedString(string: "↓ " + Self.format(speed?.downloadBytesPerSecond), attributes: attributes),
+            NSAttributedString(string: Self.format(speed?.uploadBytesPerSecond), attributes: attributes),
+            NSAttributedString(string: Self.format(speed?.downloadBytesPerSecond), attributes: attributes),
         ]
 
-        // Both lines must fit the menu bar, so cap the line height rather than trust the font metrics.
+        // Two lines must fit the menu bar, and squeezing them below the font's own line height
+        // clips the glyphs (measured), so take whichever of the two limits is smaller.
         let lineHeight = min((font.ascender - font.descender).rounded(.up),
                              ((NSStatusBar.system.thickness - 2) / 2).rounded(.down))
         let width = max(1, lines.map { $0.size().width }.max()?.rounded(.up) ?? 1)
@@ -205,16 +207,18 @@ final class StatusBarController {
         return image
     }
 
-    /// Fixed eight-character field so the item keeps a constant width instead of jittering with
-    /// every reading: `  0 KB/s`, ` 12 KB/s`, `1.2 MB/s`, ` 12 MB/s`. Units are binary (1 KB = 1024 B).
+    /// Fixed four-character field - `  0K`, ` 12K`, `999K`, `1.5M`, ` 12M`, `1.4G` - which keeps the
+    /// width constant (no jitter between readings) and as narrow as the menu bar allows. No arrows
+    /// and no `/s`: the top line is upload, the bottom download, which the tooltip spells out.
+    /// Units are binary (1K = 1024 bytes per second).
     private static func format(_ bytesPerSecond: Double?) -> String {
-        guard let bytesPerSecond, bytesPerSecond.isFinite, bytesPerSecond > 0 else { return "  0 KB/s" }
+        guard let bytesPerSecond, bytesPerSecond.isFinite, bytesPerSecond > 0 else { return "  0K" }
         let kilobytes = bytesPerSecond / 1024
-        if kilobytes < 999.5 { return String(format: "%3.0f KB/s", kilobytes) }
+        if kilobytes < 999.5 { return String(format: "%3.0fK", kilobytes) }
         let megabytes = kilobytes / 1024
-        if megabytes < 9.95 { return String(format: "%3.1f MB/s", megabytes) }
-        if megabytes < 999.5 { return String(format: "%3.0f MB/s", megabytes) }
-        return String(format: "%3.1f GB/s", megabytes / 1024)
+        if megabytes < 9.95 { return String(format: "%3.1fM", megabytes) }
+        if megabytes < 999.5 { return String(format: "%3.0fM", megabytes) }
+        return String(format: "%3.1fG", megabytes / 1024)
     }
 
     // MARK: - Interaction

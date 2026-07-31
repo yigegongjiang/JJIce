@@ -14,6 +14,12 @@
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-07-31
+
+### Changed
+
+- 网速读数改为最紧凑排版: 去掉上下行箭头与 `/s`, 单位缩为 `K` / `M` / `G`, 菜单栏占宽从 ~56pt 降到 ~22pt。上行在上, 下行在下 (悬停提示说明)。
+
 ## [0.6.0] - 2026-07-31
 
 ### Added
@@ -116,7 +122,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...v0.4.6
