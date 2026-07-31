@@ -14,6 +14,13 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-31
+
+### Fixed
+
+- App 现在带签名, 修复「登录启动」注册失败; 覆盖安装升级不再吊销已授权的登录启动。
+- 「登录启动」默认开启若首次失败, 下次启动会重试, 不再一次失败即永久放弃。
+
 ## [0.4.6] - 2026-07-31
 
 ### Removed
@@ -102,7 +109,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...v0.4.4

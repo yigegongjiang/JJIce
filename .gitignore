@@ -1,13 +1,11 @@
 # macOS
 .DS_Store
 
-# Xcode build output
-build/
-DerivedData/
-*.xcuserstate
+# SwiftPM build output
+.build/
 
-# Xcode user-specific data (schemes are shared via xcshareddata/)
-xcuserdata/
+# .app bundle assembled by scripts/build-app.sh
+build/
 
 # Release artifacts (produced by CI)
 *.zip

@@ -167,11 +167,16 @@ final class StatusBarController {
     /// Enable Launch at Login once on first launch, then respect the user's menu choice.
     private func enableLaunchAtLoginByDefaultIfNeeded() {
         guard !defaults.bool(forKey: Self.didApplyDefaultLaunchAtLoginKey) else { return }
-        defaults.set(true, forKey: Self.didApplyDefaultLaunchAtLoginKey)
 
-        guard SMAppService.mainApp.status != .enabled else { return }
+        guard SMAppService.mainApp.status != .enabled else {
+            defaults.set(true, forKey: Self.didApplyDefaultLaunchAtLoginKey)
+            return
+        }
         do {
             try SMAppService.mainApp.register()
+            // Record the applied default only on success: a failed registration (an unsigned
+            // bundle used to be one) must be retried next launch, not silently made permanent.
+            defaults.set(true, forKey: Self.didApplyDefaultLaunchAtLoginKey)
         } catch {
             logger.error("Default Launch at Login registration failed: \(error.localizedDescription, privacy: .public)")
         }

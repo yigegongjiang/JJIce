@@ -4,8 +4,8 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/install.sh | bash
 #
-# The build is unsigned: this script strips the quarantine attribute so Gatekeeper
-# allows the first launch without a right-click "Open" dance.
+# The build is ad-hoc signed but not notarized: this script strips the quarantine
+# attribute so Gatekeeper allows the first launch without a right-click "Open" dance.
 
 set -euo pipefail
 
@@ -55,7 +55,7 @@ ditto -x -k "$tmp_zip" "${tmpdir}/extracted"
 src_app="${tmpdir}/extracted/${APP_NAME}"
 [ -d "$src_app" ] || err "extracted archive does not contain ${APP_NAME}"
 
-# Unsigned build: strip quarantine so Gatekeeper allows launch.
+# Not notarized: strip quarantine so Gatekeeper allows launch.
 xattr -dr com.apple.quarantine "$src_app" 2>/dev/null || true
 
 dest="${INSTALL_DIR}/${APP_NAME}"

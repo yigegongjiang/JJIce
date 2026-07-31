@@ -1,6 +1,7 @@
 // jj-ice app 图标生成器 (CoreGraphics, 无外部依赖)。
 // 设计: 冰蓝渐变圆角方块 + 白色"菜单栏"胶囊; 胶囊内左侧 3 个圆点(展示中的图标) + 右侧 chevron(收纳/展开隐藏图标)。
-// 用法: swift make_icon.swift [输出目录]   缺省输出到 jj-ice/Assets.xcassets/AppIcon.appiconset
+// 用法: swift make_icon.swift [输出 icns 路径]   缺省输出到 Resources/AppIcon.icns
+// 全尺寸 png 渲进临时 .iconset 后交给 iconutil 合成 icns; 仓库只留 icns, png 随时可重生成。
 
 import Cocoa
 import ImageIO
@@ -69,10 +70,13 @@ func render(_ size: Int, to path: String) {
   CGImageDestinationFinalize(dest)
 }
 
-let outDir = CommandLine.arguments.count > 1
-  ? CommandLine.arguments[1]
-  : "jj-ice/Assets.xcassets/AppIcon.appiconset"
-try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
+let outPath = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "Resources/AppIcon.icns"
+
+// iconutil 只认 <name>.iconset 目录 + 固定文件名, 故先落临时目录再合成。
+let iconset = FileManager.default.temporaryDirectory
+  .appendingPathComponent("jj-ice-AppIcon.iconset", isDirectory: true)
+try? FileManager.default.removeItem(at: iconset)
+try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true)
 
 let files: [(Int, String)] = [
   (16,   "icon_16x16.png"),
@@ -86,5 +90,17 @@ let files: [(Int, String)] = [
   (512,  "icon_512x512.png"),
   (1024, "icon_512x512@2x.png"),
 ]
-for (sz, name) in files { render(sz, to: "\(outDir)/\(name)") }
-print("rendered \(files.count) icons to \(outDir)")
+for (sz, name) in files { render(sz, to: iconset.appendingPathComponent(name).path) }
+
+let iconutil = Process()
+iconutil.executableURL = URL(fileURLWithPath: "/usr/bin/iconutil")
+iconutil.arguments = ["-c", "icns", iconset.path, "-o", outPath]
+try iconutil.run()
+iconutil.waitUntilExit()
+try? FileManager.default.removeItem(at: iconset)
+
+guard iconutil.terminationStatus == 0 else {
+  FileHandle.standardError.write("iconutil failed (exit \(iconutil.terminationStatus))\n".data(using: .utf8)!)
+  exit(1)
+}
+print("rendered \(files.count) sizes -> \(outPath)")
