@@ -14,6 +14,13 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-31
+
+### Added
+
+- 菜单栏常驻实时网速: `↑ 上行` / `↓ 下行` 两行, 每秒刷新, 读数取自物理网卡 → 开关 VPN 不会让数字跳变或双计。
+- 右键箭头菜单新增 `Show Network Speed` 开关 (默认开); 点网速本身同样打开该菜单。
+
 ## [0.5.0] - 2026-07-31
 
 ### Fixed
@@ -109,7 +116,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...v0.4.5
