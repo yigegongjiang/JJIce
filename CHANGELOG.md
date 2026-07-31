@@ -1,8 +1,24 @@
+```When Editing
+本文档作用: 面向使用者的发版记录; 唯一 changelog 文件, MUST NOT 拆分开发者版本
+遵循 AGENTS.md 文档编写规范
+- 写: 新功能 / 行为修复 / 体验 / 安全 / 安装迁移
+- MUST NOT 写: 文件路径 / 函数名 / 依赖包名 / 重构细节
+- 单条 ≤ 2 行, 单版本 ≤ 5 条; 段落: Added / Changed / Fixed / Removed / Security
+- 无用户可感知变化 → 占位: `跟随版本同步发布`
+- 顶部保留 `## [Unreleased]`; 每版底部补对比链接
+```
+
 # Changelog
 
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.4] - 2026-07-31
+
+### Changed
+
+- Moved the install script to `scripts/install.sh`. Use the updated one-liner in the README; the old `install.sh` URL no longer resolves.
 
 ## [0.4.3] - 2026-07-23
 
@@ -76,7 +92,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.4.0...v0.4.1
