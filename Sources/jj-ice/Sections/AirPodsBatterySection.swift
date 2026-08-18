@@ -7,9 +7,11 @@ import AppKit
 
 /// Battery percentage of the connected AirPods, shown as an icon plus `79%`.
 ///
-/// Display only: no click action, and it removes itself whenever no audio accessory is connected,
-/// so there is nothing for the user to configure and nothing to hide.
+/// Display only: no click action. Visibility is the switch AND live data, so the readout is there
+/// only while both hold - turning the switch off also stops the polling.
 final class AirPodsBatterySection: StatusSection {
+    override var menuToggleTitle: String? { "Show AirPods Battery" }
+
     /// The level only moves a percent every few minutes, and connect/disconnect shows up as the
     /// reading appearing or vanishing rather than as a separate event. 15 s makes a freshly worn
     /// pair visible almost at once while costing ~60 ms of CPU per tick.
@@ -18,7 +20,7 @@ final class AirPodsBatterySection: StatusSection {
     init(defaults: UserDefaults) {
         super.init(
             autosaveName: "jj-ice.AirPodsBattery",
-            visibilityDefaultsKey: nil,
+            visibilityDefaultsKey: "jj-ice.showAirPodsBattery",
             defaults: defaults
         )
         // Deliberately left visible until the first sample decides: hiding the item inside `init`

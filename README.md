@@ -18,9 +18,10 @@ curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/i
 
 - 手动装: 下载 [Releases](https://github.com/yigegongjiang/jj-ice/releases) 的 `jj-ice-macos.zip` → 拖 `/Applications` → `xattr -dr com.apple.quarantine /Applications/jj-ice.app`
 - 按住 `Command` 拖动图标到分隔符左侧 = 归入可隐藏区; 右侧常驻
-- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 唯一菜单入口: 网速开关 (默认开) / 登录启动 (默认开) / Help / About / Quit
+- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 唯一菜单入口: 网速开关 / AirPods 电量开关 (均默认开) / 登录启动 (默认开) / Help / About / Quit
 - 网速两行 (上 = 上行 / 下 = 下行), 1s 刷新, 占宽 ~22pt; 只统计物理网卡 → VPN 开关不改变读数; 纯展示, 点击无反应 (开关在箭头右键菜单)
-- AirPods 电量 `xx%`, 15s 刷新; 只读单只 (双耳同步耗电); 未连接耳机时自动消失; 纯展示, 点击无反应, 无开关
+- AirPods 电量 `xx%`, 15s 刷新; 只读单只 (双耳同步耗电); 纯展示, 点击无反应
+- 显隐 = 开关 AND 有读数: 开关开且耳机已连接才出现; 未连接自动消失, 关开关连轮询一并停止
 - ad-hoc 签名, 未公证, App Store 外分发; 需 macOS 26+
 
 ## 架构

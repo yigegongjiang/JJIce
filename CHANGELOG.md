@@ -14,6 +14,12 @@
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-08-18
+
+### Added
+
+- 右键箭头菜单新增 `Show AirPods Battery` 开关 (默认开, 升级后行为不变)。关掉即从菜单栏移除并停止 15s 轮询; 开着但未连耳机时仍不显示 (显隐 = 开关 AND 有读数)。
+
 ## [0.7.2] - 2026-08-18
 
 ### Changed
@@ -140,7 +146,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.1...v0.7.0
