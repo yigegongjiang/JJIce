@@ -32,6 +32,7 @@ class StatusSection {
     /// How often `refresh()` runs.
     var refreshInterval: Duration { .seconds(1) }
 
+    private let autosaveName: String
     private let defaults: UserDefaults
     private let visibilityDefaultsKey: String?
     private var refreshTask: Task<Void, Never>?
@@ -44,6 +45,7 @@ class StatusSection {
     ///     shown. Nil for sections without a switch. Also frozen once shipped, for the same
     ///     reason.
     init(autosaveName: String, visibilityDefaultsKey: String?, defaults: UserDefaults) {
+        self.autosaveName = autosaveName
         self.defaults = defaults
         self.visibilityDefaultsKey = visibilityDefaultsKey
         if let visibilityDefaultsKey {
@@ -92,7 +94,7 @@ class StatusSection {
                 // `stop()` can land while `refresh()` is awaiting; without this the loop would
                 // resurrect an item that was just hidden.
                 guard !Task.isCancelled else { return }
-                self.item.isVisible = self.isEnabled && hasData
+                self.setVisible(self.isEnabled && hasData)
                 try? await Task.sleep(for: self.refreshInterval)
             }
         }
@@ -111,8 +113,20 @@ class StatusSection {
             start()
         } else {
             stop()
-            item.isVisible = false
+            setVisible(false)
         }
+    }
+
+    /// Hiding an item makes AppKit discard its `NSStatusItem Preferred Position` entry and never
+    /// restore it (measured: the key stays gone across repeated hide/show cycles), so the slot has
+    /// to be re-seeded on the way back in. Without this a readout that comes and goes - AirPods
+    /// leaving and re-entering the ear - can reappear left of the divider, where collapsing hides
+    /// it. Seeding is a no-op while AppKit still owns the key.
+    private func setVisible(_ visible: Bool) {
+        if visible, !item.isVisible {
+            Self.seedRightmostPosition(autosaveName, defaults)
+        }
+        item.isVisible = visible
     }
 
     /// AppKit keeps each item's slot in `NSStatusItem Preferred Position <autosaveName>`, a

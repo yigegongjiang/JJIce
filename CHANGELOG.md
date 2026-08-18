@@ -14,6 +14,12 @@
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-08-18
+
+### Fixed
+
+- AirPods 断开后重新连接, 电量读数可能跑到分隔符左侧 (于是折叠时连带被隐藏)。现在每次重新出现都回到最右侧。
+
 ## [0.7.0] - 2026-08-18
 
 ### Added
@@ -128,7 +134,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.5.0...v0.6.0

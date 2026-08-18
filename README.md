@@ -42,7 +42,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 
 - 新 section MUST 播种位置 0 (最右可用槽), 否则首次出现会落在分隔符左侧 = 被折叠隐藏
 - `autosaveName` 与显隐 `UserDefaults` key 一经发布即冻结: 改名 = 重置用户图标位置 / 静默重开已关读数
-- NEVER 在 `init` 里 `isVisible = false`: 实测 AppKit 会连带丢弃该 item 的 `NSStatusItem Preferred Position`, 交出已播种的最右槽 → 读数可能重现在分隔符左侧。让首次 `refresh()` 决定显隐 (代价 = 约 60ms 空图标)
+- 实测 AppKit 一旦 `isVisible = false` 就丢弃该 item 的 `NSStatusItem Preferred Position` 且永不回写 (反复隐藏 / 显示都不恢复) → 已播种的最右槽被交出, 读数可能重现在分隔符左侧。两处对策: `init` 里 NEVER 设 `isVisible = false` (交给首次 `refresh()`, 代价约 60ms 空图标); 每次由隐藏转显示前重新播种 (`StatusSection.setVisible`)
 
 网速采样: `sysctl(CTL_NET, PF_LINK, NETLINK_GENERIC, IFMIB_IFDATA, <if_index>, IFDATA_GENERAL)` 取 `struct ifmibdata` 的 64 位 `if_data64` 计数器, 1s 差分.
 
