@@ -8,23 +8,21 @@ import OSLog
 import ServiceManagement
 
 /// Classic divider + toggle menu bar item layout, implemented without private APIs.
-/// Left to right: `[hideable items] [divider] [toggle] [speed] [pinned items] [system items]`.
+/// Left to right: `[hideable items] [divider] [toggle] [sections] [system items]`.
+///
+/// Arranging and the shared menu live here; each readout lives in its own `StatusSection`
+/// subclass (see `Sections/StatusSection.swift` for the layering).
 @MainActor
 final class StatusBarController {
     private let separatorItem: NSStatusItem
     private let toggleItem: NSStatusItem
-    private let netSpeedItem: NSStatusItem
+    private let sections: [StatusSection]
 
     private let defaults: UserDefaults
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "jj-ice", category: "StatusBar")
 
-    private let speedMonitor = NetworkSpeedMonitor()
-    private var speedTask: Task<Void, Never>?
-
     private static let collapsedDefaultsKey = "jj-ice.isCollapsed"
-    private static let netSpeedVisibleDefaultsKey = "jj-ice.showNetworkSpeed"
     private static let didApplyDefaultLaunchAtLoginKey = "jj-ice.didApplyDefaultLaunchAtLogin"
-    private static let netSpeedAutosaveName = "jj-ice.NetSpeed"
     private static let repositoryURL = URL(string: "https://github.com/yigegongjiang/jj-ice")!
 
     private var isCollapsed: Bool {
@@ -35,34 +33,27 @@ final class StatusBarController {
         }
     }
 
-    private var isNetSpeedVisible: Bool {
-        didSet {
-            guard isNetSpeedVisible != oldValue else { return }
-            defaults.set(isNetSpeedVisible, forKey: Self.netSpeedVisibleDefaultsKey)
-            applyNetSpeedVisibility()
-        }
-    }
-
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.isCollapsed = defaults.bool(forKey: Self.collapsedDefaultsKey)
-        defaults.register(defaults: [Self.netSpeedVisibleDefaultsKey: true])
-        self.isNetSpeedVisible = defaults.bool(forKey: Self.netSpeedVisibleDefaultsKey)
 
         // Without a saved position, newer status items appear to the left, so create right to
-        // left: speed, toggle, divider. The speed readout must end up right of the divider,
-        // otherwise collapsing would hide the thing the user wants to watch.
+        // left: sections, toggle, divider. Every section must end up right of the divider,
+        // otherwise collapsing would hide the very thing the user wants to watch - each one
+        // seeds its own slot for that (see `StatusSection`). Within this list, earlier means
+        // further right on a first launch; afterwards AppKit owns the order.
+        self.sections = [
+            NetworkSpeedSection(defaults: defaults),
+            AirPodsBatterySection(defaults: defaults),
+        ]
         let statusBar = NSStatusBar.system
-        Self.seedNetSpeedPosition(defaults)
-        self.netSpeedItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
         self.toggleItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
         self.separatorItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
         configureSeparatorItem()
         configureToggleItem()
-        configureNetSpeedItem()
+        configureSections()
         applyCollapsedState()
-        applyNetSpeedVisibility()
         enableLaunchAtLoginByDefaultIfNeeded()
     }
 
@@ -83,25 +74,15 @@ final class StatusBarController {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
-    private func configureNetSpeedItem() {
-        netSpeedItem.autosaveName = Self.netSpeedAutosaveName
-        guard let button = netSpeedItem.button else { return }
-        button.target = self
-        button.action = #selector(handleNetSpeedClick)
-        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        button.image = makeSpeedImage(for: nil)
-        button.toolTip = "Physical network links - top line: upload, bottom line: download"
-    }
-
-    /// AppKit keeps each item's slot in `NSStatusItem Preferred Position <autosaveName>`, a
-    /// distance from the right edge where smaller means further right. On the launch that first
-    /// creates the speed item it has no slot yet and can land left of the divider - exactly where
-    /// collapsing hides it. Seeding 0 asks for the rightmost slot available to a third-party item;
-    /// AppKit clamps it into the usable range and owns the value from then on.
-    private static func seedNetSpeedPosition(_ defaults: UserDefaults) {
-        let key = "NSStatusItem Preferred Position \(netSpeedAutosaveName)"
-        guard defaults.object(forKey: key) == nil else { return }
-        defaults.set(0, forKey: key)
+    private func configureSections() {
+        for section in sections {
+            if section.opensMenuOnClick, let button = section.item.button {
+                button.target = self
+                button.action = #selector(handleSectionClick)
+                button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            }
+            section.activate()
+        }
     }
 
     /// Draw a centered divider line. Template images adapt to light and dark menu bars.
@@ -142,85 +123,6 @@ final class StatusBarController {
         toggleItem.button?.toolTip = description
     }
 
-    // MARK: - Network Speed
-
-    private func applyNetSpeedVisibility() {
-        netSpeedItem.isVisible = isNetSpeedVisible
-        if isNetSpeedVisible {
-            startSpeedUpdates()
-        } else {
-            stopSpeedUpdates()
-        }
-    }
-
-    private func startSpeedUpdates() {
-        guard speedTask == nil else { return }
-        speedMonitor.reset()
-        netSpeedItem.button?.image = makeSpeedImage(for: nil)
-        speedTask = Task { [weak self] in
-            // One tick per second. The rate itself is derived from the measured elapsed time,
-            // so timer drift, coalescing and sleep/wake cannot distort it.
-            while !Task.isCancelled {
-                guard let self else { return }
-                if let speed = self.speedMonitor.sample() {
-                    self.netSpeedItem.button?.image = self.makeSpeedImage(for: speed)
-                }
-                try? await Task.sleep(for: .seconds(1))
-            }
-        }
-    }
-
-    private func stopSpeedUpdates() {
-        speedTask?.cancel()
-        speedTask = nil
-    }
-
-    /// Two stacked monospaced lines drawn into a single template image: the system re-tints
-    /// template images, so the readout follows light and dark menu bars plus accessibility
-    /// tints for free. Nil renders the idle placeholder shown before the first rate exists.
-    private func makeSpeedImage(for speed: NetworkSpeed?) -> NSImage {
-        let font = NSFont.monospacedSystemFont(ofSize: 9, weight: .regular)
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .right
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .paragraphStyle: paragraph,
-            .kern: -0.2,  // menu bar space is scarce: tighten the tracking as far as stays legible
-            .foregroundColor: NSColor.black,  // template image: only coverage matters, not the color
-        ]
-        let lines = [
-            NSAttributedString(string: Self.format(speed?.uploadBytesPerSecond), attributes: attributes),
-            NSAttributedString(string: Self.format(speed?.downloadBytesPerSecond), attributes: attributes),
-        ]
-
-        // Two lines must fit the menu bar, and squeezing them below the font's own line height
-        // clips the glyphs (measured), so take whichever of the two limits is smaller.
-        let lineHeight = min((font.ascender - font.descender).rounded(.up),
-                             ((NSStatusBar.system.thickness - 2) / 2).rounded(.down))
-        let width = max(1, lines.map { $0.size().width }.max()?.rounded(.up) ?? 1)
-        let image = NSImage(size: NSSize(width: width, height: lineHeight * 2))
-        image.lockFocus()
-        lines[0].draw(in: NSRect(x: 0, y: lineHeight, width: width, height: lineHeight))
-        lines[1].draw(in: NSRect(x: 0, y: 0, width: width, height: lineHeight))
-        image.unlockFocus()
-        image.isTemplate = true
-        return image
-    }
-
-    /// Fixed four-character field - `  0K`, ` 12K`, `999K`, `1.5M`, ` 12M`, `1.4G` - which keeps the
-    /// width constant (no jitter between readings) and as narrow as the menu bar allows. No arrows
-    /// and no `/s`: the top line is upload, the bottom download, which the tooltip spells out.
-    /// Units are binary (1K = 1024 bytes per second).
-    private static func format(_ bytesPerSecond: Double?) -> String {
-        guard let bytesPerSecond, bytesPerSecond.isFinite, bytesPerSecond > 0 else { return "  0K" }
-        let kilobytes = bytesPerSecond / 1024
-        if kilobytes < 999.5 { return String(format: "%3.0fK", kilobytes) }
-        let megabytes = kilobytes / 1024
-        if megabytes < 9.95 { return String(format: "%3.1fM", megabytes) }
-        if megabytes < 999.5 { return String(format: "%3.0fM", megabytes) }
-        return String(format: "%3.1fG", megabytes / 1024)
-    }
-
     // MARK: - Interaction
 
     @objc private func handleToggleClick() {
@@ -233,10 +135,11 @@ final class StatusBarController {
         }
     }
 
-    /// The speed readout has nothing to toggle, so any click opens the menu - which is also the
+    /// A hideable readout has nothing to toggle, so any click opens the menu - which is also the
     /// only way back after hiding it.
-    @objc private func handleNetSpeedClick() {
-        presentMenu(on: netSpeedItem)
+    @objc private func handleSectionClick(_ sender: NSButton) {
+        guard let section = sections.first(where: { $0.item.button === sender }) else { return }
+        presentMenu(on: section.item)
     }
 
     private func presentMenu(on item: NSStatusItem) {
@@ -249,9 +152,13 @@ final class StatusBarController {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
 
-        let speedItem = makeMenuItem(title: "Show Network Speed", action: #selector(menuToggleNetSpeed))
-        speedItem.state = isNetSpeedVisible ? .on : .off
-        menu.addItem(speedItem)
+        for section in sections {
+            guard let title = section.menuToggleTitle else { continue }
+            let item = makeMenuItem(title: title, action: #selector(menuToggleSection))
+            item.state = section.isEnabled ? .on : .off
+            item.representedObject = section
+            menu.addItem(item)
+        }
 
         let launchItem = makeMenuItem(title: "Launch at Login", action: #selector(menuToggleLaunchAtLogin))
         launchItem.state = isLaunchAtLoginEnabled ? .on : .off
@@ -272,8 +179,9 @@ final class StatusBarController {
         return item
     }
 
-    @objc private func menuToggleNetSpeed() {
-        isNetSpeedVisible.toggle()
+    @objc private func menuToggleSection(_ sender: NSMenuItem) {
+        guard let section = sender.representedObject as? StatusSection else { return }
+        section.isEnabled.toggle()
     }
 
     @objc private func menuOpenHelp() {
@@ -285,9 +193,10 @@ final class StatusBarController {
         let alert = NSAlert()
         alert.messageText = "jj-ice \(version)"
         alert.informativeText = """
-        Menu bar item organizer with a network speed readout.
+        Menu bar item organizer with a network speed and AirPods battery readout.
         Click the arrow to collapse or expand; hold Command and drag items to the left side of the divider to hide them.
         The speed readout sums the physical links, so a VPN going up or down does not change the numbers.
+        The AirPods percentage is one earbud's, and disappears when nothing is connected.
         """
         alert.addButton(withTitle: "OK")
         NSApp.activate()
