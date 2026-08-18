@@ -14,6 +14,12 @@
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-08-18
+
+### Changed
+
+- 点网速读数不再弹菜单: 网速 / AirPods 电量等附属读数一律纯展示, 点击无反应。菜单 (含网速开关) 统一走右键箭头。
+
 ## [0.7.1] - 2026-08-18
 
 ### Fixed
@@ -134,7 +140,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.6.0...v0.6.1

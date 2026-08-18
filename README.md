@@ -18,8 +18,8 @@ curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/i
 
 - 手动装: 下载 [Releases](https://github.com/yigegongjiang/jj-ice/releases) 的 `jj-ice-macos.zip` → 拖 `/Applications` → `xattr -dr com.apple.quarantine /Applications/jj-ice.app`
 - 按住 `Command` 拖动图标到分隔符左侧 = 归入可隐藏区; 右侧常驻
-- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 网速开关 (默认开) / 登录启动 (默认开) / Help / About / Quit
-- 网速两行 (上 = 上行 / 下 = 下行), 1s 刷新, 占宽 ~22pt; 只统计物理网卡 → VPN 开关不改变读数; 点网速 = 同一菜单
+- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 唯一菜单入口: 网速开关 (默认开) / 登录启动 (默认开) / Help / About / Quit
+- 网速两行 (上 = 上行 / 下 = 下行), 1s 刷新, 占宽 ~22pt; 只统计物理网卡 → VPN 开关不改变读数; 纯展示, 点击无反应 (开关在箭头右键菜单)
 - AirPods 电量 `xx%`, 15s 刷新; 只读单只 (双耳同步耗电); 未连接耳机时自动消失; 纯展示, 点击无反应, 无开关
 - ad-hoc 签名, 未公证, App Store 外分发; 需 macOS 26+
 
@@ -41,6 +41,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 `StatusSection` 基类收拢公共骨架: 位置播种 / `Task` 刷新循环 / `UserDefaults` 显隐 / 取消竞态; 子类只重写 `refresh()` (返回 false = 无数据 → 自动隐藏) 与 `refreshInterval`.
 
 - 新 section MUST 播种位置 0 (最右可用槽), 否则首次出现会落在分隔符左侧 = 被折叠隐藏
+- 读数 section MUST NOT 挂 target / action: 点击无反应, 菜单唯一入口 = 右键箭头
 - `autosaveName` 与显隐 `UserDefaults` key 一经发布即冻结: 改名 = 重置用户图标位置 / 静默重开已关读数
 - 实测 AppKit 一旦 `isVisible = false` 就丢弃该 item 的 `NSStatusItem Preferred Position` 且永不回写 (反复隐藏 / 显示都不恢复) → 已播种的最右槽被交出, 读数可能重现在分隔符左侧。两处对策: `init` 里 NEVER 设 `isVisible = false` (交给首次 `refresh()`, 代价约 60ms 空图标); 每次由隐藏转显示前重新播种 (`StatusSection.setVisible`)
 

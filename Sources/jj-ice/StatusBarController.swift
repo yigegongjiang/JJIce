@@ -74,13 +74,10 @@ final class StatusBarController {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
+    /// Readouts get no target or action: clicking one must do nothing. Only the arrow reacts -
+    /// left click collapses, right click opens the shared menu that holds every section switch.
     private func configureSections() {
         for section in sections {
-            if section.opensMenuOnClick, let button = section.item.button {
-                button.target = self
-                button.action = #selector(handleSectionClick)
-                button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            }
             section.activate()
         }
     }
@@ -129,23 +126,18 @@ final class StatusBarController {
         // Right click and Control-click open the menu; other clicks toggle collapse.
         if let event = NSApp.currentEvent,
            event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
-            presentMenu(on: toggleItem)
+            presentMenu()
         } else {
             isCollapsed.toggle()
         }
     }
 
-    /// A hideable readout has nothing to toggle, so any click opens the menu - which is also the
-    /// only way back after hiding it.
-    @objc private func handleSectionClick(_ sender: NSButton) {
-        guard let section = sections.first(where: { $0.item.button === sender }) else { return }
-        presentMenu(on: section.item)
-    }
-
-    private func presentMenu(on item: NSStatusItem) {
-        guard let button = item.button else { return }
-        item.menu = makeMenu()
-        defer { item.menu = nil }
+    /// The arrow is the only entry point to the menu, so it is also the only way back after hiding
+    /// a section.
+    private func presentMenu() {
+        guard let button = toggleItem.button else { return }
+        toggleItem.menu = makeMenu()
+        defer { toggleItem.menu = nil }
         button.performClick(nil)
     }
 
@@ -194,7 +186,8 @@ final class StatusBarController {
         alert.messageText = "jj-ice \(version)"
         alert.informativeText = """
         Menu bar item organizer with a network speed and AirPods battery readout.
-        Click the arrow to collapse or expand; hold Command and drag items to the left side of the divider to hide them.
+        Click the arrow to collapse or expand, right-click it for the menu; hold Command and drag items to the left side of the divider to hide them.
+        The readouts are display only - clicking one does nothing.
         The speed readout sums the physical links, so a VPN going up or down does not change the numbers.
         The AirPods percentage is one earbud's, and disappears when nothing is connected.
         """

@@ -16,18 +16,15 @@ import AppKit
 ///
 /// Adding a readout therefore means one subclass overriding `refresh()`, plus one entry in the
 /// controller's section list. Everything below is shared plumbing; subclasses override
-/// `refresh()`, and optionally `refreshInterval`, `menuToggleTitle`, `opensMenuOnClick` and
-/// `start()`.
+/// `refresh()`, and optionally `refreshInterval`, `menuToggleTitle` and `start()`.
 class StatusSection {
     let item: NSStatusItem
 
     /// Title of the menu entry that shows and hides this section. Nil means the user gets no
-    /// switch because visibility follows the data alone.
+    /// switch because visibility follows the data alone. The entry lives in the shared menu, which
+    /// the arrow's right click opens - readouts themselves are display only and never react to a
+    /// click, so no section wires up a target or action.
     var menuToggleTitle: String? { nil }
-
-    /// Whether clicking the readout opens the shared menu. Sections the user can hide need it -
-    /// the menu is the only way back - while self-hiding readouts stay inert on click.
-    var opensMenuOnClick: Bool { false }
 
     /// How often `refresh()` runs.
     var refreshInterval: Duration { .seconds(1) }
