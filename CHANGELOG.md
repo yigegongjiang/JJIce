@@ -14,6 +14,13 @@
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-08-19
+
+### Changed
+
+- AirPods 低电量通知改为逐格提醒: 从阈值起每降 1% 发一次 (阈值 30 → 30、29 … 1 各一次), 同一档不重发。
+- 充回阈值以上重新从头计次; 重启不会补发已发过的档位。
+
 ## [0.8.0] - 2026-08-18
 
 ### Added
@@ -158,6 +165,7 @@
 - Added the install script.
 
 [Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.8.0...HEAD
+[0.8.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.3...v0.8.0
 [0.7.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...v0.7.2

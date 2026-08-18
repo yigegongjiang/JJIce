@@ -36,7 +36,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 | 层 | 目录 | 职责 |
 | --- | --- | --- |
 | 数据 | `Monitors/` | 读硬件值, 不碰 AppKit |
-| 规则 | `Notify/` | 规则解析 + 阈值状态机 + HTTP 发送, 不碰 AppKit |
+| 规则 | `Notify/` | 规则解析 + 逐格状态机 + HTTP 发送, 不碰 AppKit |
 | 展示 | `Sections/` | 一个 `NSStatusItem` 的位置 / 刷新循环 / 显隐 / 绘制 / 弹窗 |
 | 编排 | `StatusBarController` | 分隔符 + 箭头 + sections 排布 + 聚合菜单 |
 
@@ -69,8 +69,8 @@ AirPods 采样: 子进程跑 `system_profiler SPBluetoothDataType -json` 解析 
 
 - key: `threshold` (1-100) / `url` / `method` / `query` / `headers` / `body`; `{percent}` 替换为电量; body 仅 POST / PUT / PATCH (`URLSession` 在 GET 上直接丢弃)
 - query 手动按 RFC 3986 unreserved 集转义: NEVER 用 `URLComponents.queryItems`, 实测它保留 `+` 原样 (`%` 会正确转成 `%25`) → 端点把字面加号读成空格
-- 边沿触发: 一次穿越只发一次, 电量回到阈值以上才重新武装; fired 标记落 `UserDefaults` → 重启不重发; 读数为 nil (未连接) 既不发也不重新武装 → 摘下再戴上不重发
-- 失败 (非 2xx / 网络错误) 不置 fired → 下轮重试, 上限 3 次, 保存规则即重新武装。NEVER 无限重试: 端点长期坏掉 = 每 15s 一次请求
+- 逐格触发: 阈值起每降 1% 发一次 (30 / 29 / ... / 1), 同一档 NEVER 重发 (只在严格低于已发档位时发 → 阈值内回升 1% 不算新的下降); 已发最低档落 `UserDefaults` → 重启不重发; 电量回到阈值以上清档 = 重新从头计; 读数为 nil (未连接) 既不发也不清档 → 摘下再戴上不重发
+- 失败 (非 2xx / 网络错误) 不落档 → 下轮重试, 每档上限 3 次 (降到下一档重新计次), 保存规则即清档。NEVER 无限重试: 端点长期坏掉 = 每 15s 一次请求
 - 规则只在加载 / 保存时解析并缓存: 逐次采样解析会让坏规则每 15s 刷一条日志
 - 日志只记 host + 状态码: NEVER 记完整 url / header (可能含 token)
 - `NSTextView` MUST 关 smart quote / dash / text replacement: 默认开启会把 JSON 的 `"` 换成弯引号, 解析必失败
@@ -90,7 +90,7 @@ AirPods 采样: 子进程跑 `system_profiler SPBluetoothDataType -json` 解析 
 - `Sources/jj-ice/` — 源码: `main.swift` (入口) / `AppDelegate.swift` / `StatusBarController.swift` (分隔符 + 箭头 + sections 排布 + 菜单)
 - `Sources/jj-ice/Sections/` — 展示层: `StatusSection.swift` (基类) / `NetworkSpeedSection.swift` / `AirPodsBatterySection.swift`
 - `Sources/jj-ice/Monitors/` — 数据层: `NetworkSpeedMonitor.swift` (接口 MIB 采样 → 速率) / `AirPodsBatteryMonitor.swift` (`system_profiler` → 电量)
-- `Sources/jj-ice/Notify/` — 规则层: `BatteryNotifyRule.swift` (JSON → 校验 → `URLRequest`) / `BatteryNotifier.swift` (阈值状态机 + 发送 + 重试上限)
+- `Sources/jj-ice/Notify/` — 规则层: `BatteryNotifyRule.swift` (JSON → 校验 → `URLRequest`) / `BatteryNotifier.swift` (逐格状态机 + 发送 + 重试上限)
 - `Resources/` — `Info.plist.in` (`@VERSION@` 占位 + `LSUIElement`) / `AppIcon.icns`
 - `scripts/build-app.sh` — 构建 + 组装 `.app` + ad-hoc 签名; 本机与 CI 共用同一份
 - `scripts/install-local.sh` — 本机预部署: 调 `build-app.sh` + 装入 `/Applications`

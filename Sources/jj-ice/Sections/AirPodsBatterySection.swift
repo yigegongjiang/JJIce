@@ -130,10 +130,11 @@ final class AirPodsBatterySection: StatusSection {
         let alert = NSAlert()
         alert.messageText = "AirPods Low Battery Notification"
         alert.informativeText = """
-        Saved rules fire one request per drop; the next one waits until the level climbs back above \
-        the threshold. Clear the text to turn notifications off.
+        A saved rule fires one request per percent from the threshold down: 30, 29, 28 and so on, \
+        each sent once. Charging back above the threshold starts the count over. Clear the text to \
+        turn notifications off.
 
-        threshold  fire when the level reaches this percent (1-100)
+        threshold  start at this percent, then every percent below (1-100)
         url        full http or https address
         method     GET, POST, PUT, PATCH, DELETE or HEAD
         query      appended to the url, escaped for you
