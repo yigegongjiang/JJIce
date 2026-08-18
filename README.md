@@ -47,6 +47,7 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 - 读数 section 默认点击无反应; 有设置才重写 `settingsTitle` (非 nil = controller 挂 click + 进箭头菜单 → 读数隐藏时仍可进) 与 `openSettings()`
 - `autosaveName` 与显隐 `UserDefaults` key 一经发布即冻结: 改名 = 重置用户图标位置 / 静默重开已关读数
 - 实测 AppKit 一旦 `isVisible = false` 就丢弃该 item 的 `NSStatusItem Preferred Position` 且永不回写 (反复隐藏 / 显示都不恢复) → 已播种的最右槽被交出, 读数可能重现在分隔符左侧。两处对策: `init` 里 NEVER 设 `isVisible = false` (交给首次 `refresh()`, 代价约 60ms 空图标); 每次由隐藏转显示前重新播种 (`StatusSection.setVisible`)
+- macOS 26 实测 `CGWindowListCopyWindowInfo`: 全部菜单栏图标 (含第三方) 的 owner 都是 `Control Center` 进程, 无 Screen Recording 权限时 `kCGWindowName` 全 nil, AX 只暴露 clock / controlcenter / sound 三个自带模块 → 任意图标的坐标随便拿, 归属识别不了 → NEVER 接「把读数贴到系统某图标右侧」类需求: 认不出目标, 且 Preferred Position 只在创建 / 隐藏→显示时被读取, 事后也跟不了它的移动
 
 网速采样: `sysctl(CTL_NET, PF_LINK, NETLINK_GENERIC, IFMIB_IFDATA, <if_index>, IFDATA_GENERAL)` 取 `struct ifmibdata` 的 64 位 `if_data64` 计数器, 1s 差分.
 
