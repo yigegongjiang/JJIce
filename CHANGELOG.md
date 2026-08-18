@@ -14,6 +14,17 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-18
+
+### Added
+
+- AirPods 低电量通知: 点电量读数弹出 JSON 编辑器 (读数隐藏时走箭头右键菜单同名项), 填阈值 + 要调用的 HTTP 请求 (`url` / `method` / `query` / `headers` / `body`, `{percent}` 代入电量), 内置可直接保存的模板。
+- 电量降到阈值只通知一次, 充回阈值以上才重新计次, 重启不重发; 编辑器带 `Send Test` 立即验证请求, 清空文本即关闭通知。
+
+### Changed
+
+- 点 AirPods 电量读数不再无反应, 改为打开通知设置; 网速读数仍为纯展示。
+
 ## [0.7.3] - 2026-08-18
 
 ### Added
@@ -146,7 +157,8 @@
 
 - Added the install script.
 
-[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.3...HEAD
+[Unreleased]: https://github.com/yigegongjiang/jj-ice/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.3...v0.8.0
 [0.7.3]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/yigegongjiang/jj-ice/compare/v0.7.0...v0.7.1

@@ -18,9 +18,10 @@ curl -fsSL https://raw.githubusercontent.com/yigegongjiang/jj-ice/main/scripts/i
 
 - 手动装: 下载 [Releases](https://github.com/yigegongjiang/jj-ice/releases) 的 `jj-ice-macos.zip` → 拖 `/Applications` → `xattr -dr com.apple.quarantine /Applications/jj-ice.app`
 - 按住 `Command` 拖动图标到分隔符左侧 = 归入可隐藏区; 右侧常驻
-- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 唯一菜单入口: 网速开关 / AirPods 电量开关 (均默认开) / 登录启动 (默认开) / Help / About / Quit
+- 点箭头折叠 / 展开 (状态持久化); 右键箭头 = 菜单入口: 网速开关 / AirPods 电量开关 (均默认开) / AirPods 通知设置 / 登录启动 (默认开) / Help / About / Quit
 - 网速两行 (上 = 上行 / 下 = 下行), 1s 刷新, 占宽 ~22pt; 只统计物理网卡 → VPN 开关不改变读数; 纯展示, 点击无反应 (开关在箭头右键菜单)
-- AirPods 电量 `xx%`, 15s 刷新; 只读单只 (双耳同步耗电); 纯展示, 点击无反应; 显隐 = 开关 AND 已连接耳机 (网速只看开关): 未连接自动消失, 关开关连 15s 轮询一并停止
+- AirPods 电量 `xx%`, 15s 刷新; 只读单只 (双耳同步耗电); 显隐 = 开关 AND 已连接耳机 (网速只看开关): 未连接自动消失, 关开关连 15s 轮询一并停止
+- 点 AirPods 读数 = 编辑低电量通知 (JSON: 阈值 + 要调用的 HTTP 请求, 首次打开填模板); 读数消失时走箭头右键菜单同名项
 - ad-hoc 签名, 未公证, App Store 外分发; 需 macOS 26+
 
 ## 架构
@@ -29,19 +30,21 @@ Swift 6 + AppKit, 纯 `NSStatusItem` 实现, 无私有 API. `autosaveName` 托�
 
 折叠原理: 折叠时把分隔符 item 撑到 `max(10000, 最宽屏宽 + 200)` 并 `alphaValue = 0`, 左侧图标被挤出屏幕; 展开时回到 `variableLength`.
 
-三层分工 (新增读数 = 加一个 Section 子类 + controller 列表加一行):
+分层 (新增读数 = 加一个 Section 子类 + controller 列表加一行):
 
 <!-- prettier-ignore -->
 | 层 | 目录 | 职责 |
 | --- | --- | --- |
 | 数据 | `Monitors/` | 读硬件值, 不碰 AppKit |
-| 展示 | `Sections/` | 一个 `NSStatusItem` 的位置 / 刷新循环 / 显隐 / 绘制 |
+| 规则 | `Notify/` | 规则解析 + 阈值状态机 + HTTP 发送, 不碰 AppKit |
+| 展示 | `Sections/` | 一个 `NSStatusItem` 的位置 / 刷新循环 / 显隐 / 绘制 / 弹窗 |
 | 编排 | `StatusBarController` | 分隔符 + 箭头 + sections 排布 + 聚合菜单 |
 
 `StatusSection` 基类收拢公共骨架: 位置播种 / `Task` 刷新循环 / `UserDefaults` 显隐 / 取消竞态; 子类只重写 `refresh()` (返回 false = 无数据 → 自动隐藏) 与 `refreshInterval`.
 
 - 新 section MUST 播种位置 0 (最右可用槽), 否则首次出现会落在分隔符左侧 = 被折叠隐藏
-- 读数 section MUST NOT 挂 target / action: 点击无反应, 菜单唯一入口 = 右键箭头
+- 只有 `Sections/` MAY `import AppKit`: 弹窗写在 section 内, MUST NOT 渗进 `Monitors/` / `Notify/`
+- 读数 section 默认点击无反应; 有设置才重写 `settingsTitle` (非 nil = controller 挂 click + 进箭头菜单 → 读数隐藏时仍可进) 与 `openSettings()`
 - `autosaveName` 与显隐 `UserDefaults` key 一经发布即冻结: 改名 = 重置用户图标位置 / 静默重开已关读数
 - 实测 AppKit 一旦 `isVisible = false` 就丢弃该 item 的 `NSStatusItem Preferred Position` 且永不回写 (反复隐藏 / 显示都不恢复) → 已播种的最右槽被交出, 读数可能重现在分隔符左侧。两处对策: `init` 里 NEVER 设 `isVisible = false` (交给首次 `refresh()`, 代价约 60ms 空图标); 每次由隐藏转显示前重新播种 (`StatusSection.setVisible`)
 
@@ -61,6 +64,20 @@ AirPods 采样: 子进程跑 `system_profiler SPBluetoothDataType -json` 解析 
 - 子进程在 `Task.detached` 里跑 → 不卡主线程; 每条退出路径 `waitUntilExit()` 回收 (否则每轮攒一个 zombie); 10s 看门狗 `terminate()` 兜蓝牙栈卡死 → 退化成「无读数」而非永久冻结
 - 15s 轮询: 电量分钟级才动 1%, 连接/断开表现为读数出现/消失; 无需监听 `IOBluetooth` 连接通知 (历史上有缺符号崩溃 + 连接失败也回调)
 
+低电量通知: 点 AirPods 读数 (或箭头右键菜单同名项) 弹 `NSAlert` + `NSTextView` 编辑 JSON 规则, 原文存 `UserDefaults`; 首次打开填模板 (指向 notify 端点), 未保存 NEVER 发送.
+
+- key: `threshold` (1-100) / `url` / `method` / `query` / `headers` / `body`; `{percent}` 替换为电量; body 仅 POST / PUT / PATCH (`URLSession` 在 GET 上直接丢弃)
+- query 手动按 RFC 3986 unreserved 集转义: NEVER 用 `URLComponents.queryItems`, 实测它保留 `+` 原样 (`%` 会正确转成 `%25`) → 端点把字面加号读成空格
+- 边沿触发: 一次穿越只发一次, 电量回到阈值以上才重新武装; fired 标记落 `UserDefaults` → 重启不重发; 读数为 nil (未连接) 既不发也不重新武装 → 摘下再戴上不重发
+- 失败 (非 2xx / 网络错误) 不置 fired → 下轮重试, 上限 3 次, 保存规则即重新武装。NEVER 无限重试: 端点长期坏掉 = 每 15s 一次请求
+- 规则只在加载 / 保存时解析并缓存: 逐次采样解析会让坏规则每 15s 刷一条日志
+- 日志只记 host + 状态码: NEVER 记完整 url / header (可能含 token)
+- `NSTextView` MUST 关 smart quote / dash / text replacement: 默认开启会把 JSON 的 `"` 换成弯引号, 解析必失败
+- 弹窗是循环: 校验失败 / 测试结果都回到用户原文, MUST NOT 丢弃已编辑内容; 空文本保存 = 关通知 + 下次打开恢复模板
+- `Send Test` 与真实通知共用 `makeRequest` + 同一发送函数: 分叉实现的测试证明不了任何事
+- 弹窗期间 `runModal` 占住主 run loop → 所有读数刷新暂停, 关掉即恢复 (实测: 主队列 block 在模态期间不执行)。这是预期行为, MUST NOT 为此加补偿机制
+- 关掉「AirPods 电量」开关会停掉喂给通知的轮询 → 此时保存规则 MUST 明确告知未生效
+
 构建形态: SwiftPM executable, 无 xcodeproj / Storyboard / asset catalog; `.app` 由 `scripts/build-app.sh` 组装 (Info.plist + icns + ad-hoc 签名). universal (arm64 + x86_64) — macOS 26 仍覆盖部分 Intel 机型.
 
 签名: ad-hoc (`codesign --sign -`), designated requirement 只钉 bundle identifier 不钉 cdhash. `SMAppService` 拒绝为无签名 bundle 注册登录项 → 签名是功能前提; 不钉 cdhash 则重装 / 升级不吊销用户已授权的登录项.
@@ -72,6 +89,7 @@ AirPods 采样: 子进程跑 `system_profiler SPBluetoothDataType -json` 解析 
 - `Sources/jj-ice/` — 源码: `main.swift` (入口) / `AppDelegate.swift` / `StatusBarController.swift` (分隔符 + 箭头 + sections 排布 + 菜单)
 - `Sources/jj-ice/Sections/` — 展示层: `StatusSection.swift` (基类) / `NetworkSpeedSection.swift` / `AirPodsBatterySection.swift`
 - `Sources/jj-ice/Monitors/` — 数据层: `NetworkSpeedMonitor.swift` (接口 MIB 采样 → 速率) / `AirPodsBatteryMonitor.swift` (`system_profiler` → 电量)
+- `Sources/jj-ice/Notify/` — 规则层: `BatteryNotifyRule.swift` (JSON → 校验 → `URLRequest`) / `BatteryNotifier.swift` (阈值状态机 + 发送 + 重试上限)
 - `Resources/` — `Info.plist.in` (`@VERSION@` 占位 + `LSUIElement`) / `AppIcon.icns`
 - `scripts/build-app.sh` — 构建 + 组装 `.app` + ad-hoc 签名; 本机与 CI 共用同一份
 - `scripts/install-local.sh` — 本机预部署: 调 `build-app.sh` + 装入 `/Applications`

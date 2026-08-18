@@ -74,10 +74,15 @@ final class StatusBarController {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
-    /// Readouts get no target or action: clicking one must do nothing. Only the arrow reacts -
-    /// left click collapses, right click opens the shared menu that holds every section switch.
+    /// A readout answers a click only when it has settings to open; the rest stay inert. The arrow
+    /// keeps the shared menu to itself - left click collapses, right click opens the menu that holds
+    /// every section's switch and settings entry.
     private func configureSections() {
         for section in sections {
+            if section.settingsTitle != nil, let button = section.item.button {
+                button.target = self
+                button.action = #selector(handleSectionClick)
+            }
             section.activate()
         }
     }
@@ -122,6 +127,10 @@ final class StatusBarController {
 
     // MARK: - Interaction
 
+    @objc private func handleSectionClick(_ sender: NSButton) {
+        sections.first { $0.item.button === sender }?.openSettings()
+    }
+
     @objc private func handleToggleClick() {
         // Right click and Control-click open the menu; other clicks toggle collapse.
         if let event = NSApp.currentEvent,
@@ -152,6 +161,13 @@ final class StatusBarController {
             menu.addItem(item)
         }
 
+        for section in sections {
+            guard let title = section.settingsTitle else { continue }
+            let item = makeMenuItem(title: title, action: #selector(menuOpenSectionSettings))
+            item.representedObject = section
+            menu.addItem(item)
+        }
+
         let launchItem = makeMenuItem(title: "Launch at Login", action: #selector(menuToggleLaunchAtLogin))
         launchItem.state = isLaunchAtLoginEnabled ? .on : .off
         menu.addItem(launchItem)
@@ -176,6 +192,11 @@ final class StatusBarController {
         section.isEnabled.toggle()
     }
 
+    @objc private func menuOpenSectionSettings(_ sender: NSMenuItem) {
+        guard let section = sender.representedObject as? StatusSection else { return }
+        section.openSettings()
+    }
+
     @objc private func menuOpenHelp() {
         NSWorkspace.shared.open(Self.repositoryURL)
     }
@@ -187,8 +208,8 @@ final class StatusBarController {
         alert.informativeText = """
         Menu bar item organizer with a network speed and AirPods battery readout.
         Click the arrow to collapse or expand, right-click it for the menu; hold Command and drag items to the left side of the divider to hide them.
-        The readouts are display only - clicking one does nothing.
-        The speed readout sums the physical links, so a VPN going up or down does not change the numbers.
+        The speed readout is display only and sums the physical links, so a VPN going up or down does not change the numbers.
+        Click the AirPods readout to set up a low battery notification: a percentage and an HTTP request, written as JSON.
         The AirPods percentage is one earbud's, and disappears when nothing is connected.
         """
         alert.addButton(withTitle: "OK")
